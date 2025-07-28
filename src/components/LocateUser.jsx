@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useMap, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
-import redIconUrl from "/public/marker-icon-red.png";
+import redIconUrl from "../assets/marker-icon-red.png";
 
 const redIcon = new L.Icon({
   iconUrl: redIconUrl,
