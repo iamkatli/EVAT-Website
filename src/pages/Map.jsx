@@ -3,7 +3,10 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import LocateUser from "../components/LocateUser";
-import chargerIconUrl from "/public/charger-station-icon.png";
+import chargerIconUrl from "../assets/charger-station-icon.png";
+import chargerLocations from "../data/chargerLocations";
+import MarkerClusterGroup from 'react-leaflet-cluster';
+
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -22,12 +25,6 @@ const chargerIcon = new L.Icon({
   shadowSize: [41, 41]
 });
 
-const chargerLocations = [
-  { id: 1, lat: -38.1582, lng: 144.3745, name: 'East Geelong Station' },
-  { id: 2, lat: -38.1800, lng: 144.3500, name: 'Belmont Station' },
-  { id: 3, lat: -38.2054, lng: 144.3393, name: 'Grovedale Station' },
-  { id: 4, lat: -38.1407, lng: 144.3367, name: 'Geelong West Station' },
-];
 
 function Map() {
   return (
@@ -37,11 +34,14 @@ function Map() {
           url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
           attribution='&copy; OpenStreetMap contributors'
         />
-        {chargerLocations.map((station) => (
-          <Marker key={station.id} position={[station.lat, station.lng]} icon={chargerIcon}>
-            <Popup >{station.name}</Popup>
-          </Marker>
-        ))}
+        <MarkerClusterGroup>
+          {chargerLocations.map((station) => (
+            <Marker key={station.id} position={[station.lat, station.lng]} icon={chargerIcon}>
+              <Popup>{station.name}</Popup>
+            </Marker>
+          ))}
+        </MarkerClusterGroup>
+
         <LocateUser />
       </MapContainer>
     </div>
