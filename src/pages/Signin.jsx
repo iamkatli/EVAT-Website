@@ -1,104 +1,100 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import {useState} from 'react';
+import {useNavigate} from 'react-router-dom';
+import {Eye, EyeOff, KeyRound, User} from 'lucide-react'; //import icons from library
+import '../styles/Style.css';
 
 function Signin() {
   const [form, setForm] = useState({ email: '', password: '' });
+  const [showPassword, setShowPassword] = useState (false); //toggle password visibility
+  const [error, setError] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+    setError(''); //clear error on input change
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('Signin data:', form);
-    setSubmitted(true);
-    navigate('/map'); // انتقال به صفحه نقشه
+
+    // Get registered users from localStorage
+    const storedUsers = JSON.parse(localStorage.getItem('users')) || [];
+
+    // Find user with matching email and password
+    const foundUser = storedUsers.find(
+      (u) => u.email === form.email && u.password === form.password
+    );
+
+    if (foundUser) {
+      setError('');
+      setSubmitted(true);
+
+      // Save current session user
+      localStorage.setItem('currentUser', JSON.stringify(foundUser));
+
+      // Redirect to profile page
+      navigate('/profile');
+    } else {
+      setError('Invalid email or password. Please try again!');
+      setSubmitted(false);
+    }
   };
 
   return (
-    <div style={styles.container}>
-      <form onSubmit={handleSubmit} style={styles.form}>
-        <h2 style={styles.title}>Sign In</h2>
-        <input
-          style={styles.input}
-          type="email"
-          name="email"
-          placeholder="Email"
-          value={form.email}
-          onChange={handleChange}
-          required
-        />
-        <input
-          style={styles.input}
-          type="password"
-          name="password"
-          placeholder="Password"
-          value={form.password}
-          onChange={handleChange}
-          required
-        />
-        <button style={styles.button} type="submit">
-          Sign In
-        </button>
-        <button
-          type="button"
-          style={{ ...styles.button, marginTop: '10px' }}
-          onClick={() => navigate('/signup')}
-        >
-          Go to Sign Up
-        </button>
-        {submitted && <p style={styles.success}>✅ Signin submitted</p>}
-      </form>
+    <div className="auth-container">
+      <img src="/chameleon.png" alt="Chameleon" className="logo-image"/>
+      <h1 className="logo-text">Chameleon</h1>
+
+        <div className="tab-row">
+          <span className="tab active">Sign in</span>
+          <span className="tab" onClick={() => navigate('/signup')}>Create Account</span>
+        </div>
+
+        <form onSubmit={handleSubmit} className="auth-form">
+          <label className="label">Email</label>
+          <div className="input-group">
+            <User className="icon"/>
+            <input
+              className="input"
+              type="text" //no email validation needed
+              name="email"
+              placeholder="Enter your email"
+              value={form.email}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <label className="label">Password</label>
+          <div className="input-group">
+            <KeyRound className="icon"/>
+            <input
+              className="input"
+              type={showPassword ? 'text' : 'password'}
+              name="password"
+              placeholder="Enter your password"
+              value={form.password}
+              onChange={handleChange}
+              required
+            />
+            <span 
+              className="icon-right"
+              onClick={() => setShowPassword(!showPassword)}>
+              {showPassword ? <EyeOff /> : <Eye />}
+            </span>
+          </div>
+
+          <button type="submit" className="button">
+            SIGN IN
+          </button>
+        </form>
+
+        {error && <p className="error-message">{error}</p>}
+
+        {submitted && <p className="success-message">✅ Signin submitted</p>}
     </div>
   );
 }
-
-const styles = {
-  container: {
-    display: 'flex',
-    minHeight: '100vh',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: '2rem',
-    backgroundColor: '#f0f0f0',
-  },
-  form: {
-    backgroundColor: '#fff',
-    padding: '2rem',
-    borderRadius: '10px',
-    boxShadow: '0 0 10px rgba(0,0,0,0.1)',
-    width: '100%',
-    maxWidth: '400px',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '1rem',
-  },
-  title: {
-    textAlign: 'center',
-    marginBottom: '1rem',
-  },
-  input: {
-    padding: '12px',
-    border: '1px solid #ccc',
-    borderRadius: '6px',
-    fontSize: '1rem',
-  },
-  button: {
-    padding: '12px',
-    backgroundColor: '#28a745',
-    color: '#fff',
-    border: 'none',
-    borderRadius: '6px',
-    fontWeight: 'bold',
-    fontSize: '1rem',
-    cursor: 'pointer',
-  },
-  success: {
-    color: 'green',
-    textAlign: 'center',
-  },
-};
 
 export default Signin;

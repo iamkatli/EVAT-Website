@@ -1,5 +1,6 @@
 import React from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import NavBar from '../components/NavBar';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import LocateUser from "../components/LocateUser";
@@ -28,22 +29,22 @@ const chargerIcon = new L.Icon({
 
 function Map() {
   return (
-    <div style={{ height: '100vh', width: '100%' }}>
-      <MapContainer center={[-37.8136, 144.9631]} zoom={13} style={{ height: '100%', width: '100%' }}>
-        <TileLayer
-          url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-          attribution='&copy; OpenStreetMap contributors'
-        />
-        <MarkerClusterGroup>
+    <div>
+      <NavBar />
+      <div style={{ height: '100vh', width: '100%' }}>
+        <MapContainer center={[-37.8136, 144.9631]} zoom={13} style={{ height: '100%', width: '100%' }}>
+          <TileLayer
+            url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+            attribution='&copy; OpenStreetMap contributors'
+          />
           {chargerLocations.map((station) => (
             <Marker key={station.id} position={[station.lat, station.lng]} icon={chargerIcon}>
-              <Popup>{station.name}</Popup>
+              <Popup >{station.name}</Popup>
             </Marker>
           ))}
-        </MarkerClusterGroup>
-
-        <LocateUser />
-      </MapContainer>
+          <LocateUser />
+        </MapContainer>
+      </div>
     </div>
   );
 }

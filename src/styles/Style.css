@@ -1,0 +1,149 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Arial Black', sans-serif;
+}
+
+.auth-container {
+  background-color: #2A5F3B;
+  color: #000;
+  min-height: 100vh;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.logo-image {
+  width: 160px;
+  margin: 1rem 0;
+}
+
+.logo-text {
+  font-size: 1.5rem;
+  font-weight: 900;
+  margin-bottom: 1rem;
+}
+
+.tab-row {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 1.5rem;
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+.tab {
+  font-weight: normal;
+}
+
+.tab.active {
+  font-weight: bold;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 350px;
+  gap: 1rem;
+}
+
+.label {
+  font-size: 0.9rem;
+  font-weight: bold;
+}
+
+.input-group {
+  display: flex;
+  align-items: center;
+  background-color: #e0e0e0;
+  border-radius: 4px;
+  padding: 0.5rem;
+}
+
+.input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background-color: transparent;
+  font-size: 1rem;
+}
+
+.icon {
+  margin-right: 0.5rem;
+}
+
+.icon-right {
+  margin-left: auto;
+  cursor: pointer;
+}
+
+.button {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background-color: #e0e0e0;
+  color: #000;
+  font-weight: bold;
+  font-size: 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* Success messages */
+.success-message {
+  color: green;
+  text-align: center;
+  margin-top: 1rem;
+}
+
+/* Error messages */
+.error-message {
+  color: red;
+  text-align: center;
+  margin-top: 10px;
+}
+
+/* NavBar container */
+nav {
+  display: flex;
+  justify-content: space-around;
+  background-color: #f8f9fa;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #ddd;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+/* Nav buttons */
+nav button {
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  transition: color 0.3s, font-weight 0.3s;
+  color: #555;
+  border-radius: 4px;
+}
+
+/* Hover effect */
+nav button:hover {
+  color: #007bff;
+  font-weight: bold;
+}
+
+/* Active button styling */
+nav button.active,
+nav button[style*="font-weight: bold"] {
+  color: #007bff;
+  font-weight: bold;
+  text-decoration: underline;
+}
+
+/* Remove button outline on click */
+nav button:focus {
+  outline: none;
+}

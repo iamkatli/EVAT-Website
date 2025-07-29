@@ -1,112 +1,164 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import {useState} from 'react';
+import {useNavigate} from 'react-router-dom';
+import {Eye, EyeOff, KeyRound, User} from 'lucide-react'; //import icons from library
+import '../styles/Style.css';
 
 function Signup() {
-  const [form, setForm] = useState({ username: '', email: '', password: '' });
+  const [form, setForm] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    mobile: '',
+    password: '' 
+  });
+
+  const [showPassword, setShowPassword] = useState (false); //toggle password visibility
   const [submitted, setSubmitted] = useState(false);
   const navigate = useNavigate();
+  const [errors, setErrors] = useState({});
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+    setErrors({ ...errors, [e.target.name]: '' });
   };
+
+  //Check if email has been registered before
+  const checkEmail = (email) => {
+    const storedUsers = JSON.parse(localStorage.getItem('users')) || [];
+  return storedUsers.some(user => user.email === email);
+};
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('Signup data:', form);
+
+    let newErrors = {};
+
+    if (checkEmail(form.email)) {
+      newErrors.email = 'This email is already registered. Please try another!';
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      setSubmitted(false);
+      return;
+    }
+
+    // Get users array or empty array
+    const storedUsers = JSON.parse(localStorage.getItem('users')) || [];
+
+    // Add new user to array
+    storedUsers.push(form);
+
+    // Save back to localStorage
+    localStorage.setItem('users', JSON.stringify(storedUsers));
+
     setSubmitted(true);
+    setErrors({});
   };
 
   return (
-    <div style={styles.container}>
-      <form onSubmit={handleSubmit} style={styles.form}>
-        <h2 style={styles.title}>Sign Up</h2>
-        <input
-          style={styles.input}
-          type="email"
-          name="email"
-          placeholder="Email"
-          value={form.email}
-          onChange={handleChange}
-          required
-        />
-        <input
-          style={styles.input}
-          type="text"
-          name="username"
-          placeholder="Username"
-          value={form.username}
-          onChange={handleChange}
-          required
-        />
-        <input
-          style={styles.input}
-          type="password"
-          name="password"
-          placeholder="Password"
-          value={form.password}
-          onChange={handleChange}
-          required
-        />
-        <button style={styles.button} type="submit">
+    <div className="auth-container">
+      <form onSubmit={handleSubmit} className="auth-form">
+        <img src="/chameleon.png" alt="Chameleon" className="logo-image"/>
+        <h1 className="logo-text">Chameleon</h1>
+
+        <label className="auth-label">First Name</label>
+        <div className="input-group">
+          <User className="icon" />
+          <input
+            type="text"
+            name="firstName"
+            placeholder="First Name"
+            value={form.firstName}
+            onChange={handleChange}
+            required
+            className="input"
+          />
+        </div>
+
+        <label className="auth-label">Last Name</label>
+        <div className="input-group">
+          <User className="icon" />
+          <input
+            type="text"
+            name="lastName"
+            placeholder="Last Name"
+            value={form.lastName}
+            onChange={handleChange}
+            required
+            className="input"
+          />
+        </div>
+
+        <label className="auth-label">Email</label>
+        <div className="input-group">
+          <User className="icon" />
+          <input
+            type="email"
+            name="email"
+            placeholder="Email"
+            value={form.email}
+            onChange={handleChange}
+            required
+            className="input"
+          />
+        </div>
+        {errors.email && <p className="error-message">{errors.email}</p>}
+
+        <label className="auth-label">Mobile</label>
+        <div className="input-group">
+          <User className="icon" />
+          <input
+            type="tel"
+            name="mobile"
+            placeholder="Mobile Number"
+            value={form.mobile}
+            onChange={handleChange}
+            required
+            pattern="04[0-9]{8}"
+            className="input"
+            onInvalid={e => e.target.setCustomValidity('Mobile number must start with 04 and contain 10 digits.')}
+            onInput={e => e.target.setCustomValidity('')}
+          />
+        </div>
+
+        <label className="auth-label">Password</label>
+        <div className="input-group">
+          <KeyRound className="icon" />
+          <input
+            type={showPassword ? 'text' : 'password'}
+            name="password"
+            placeholder="Password"
+            value={form.password}
+            onChange={handleChange}
+            required
+            className="input"
+          />
+          <span
+            className="icon-right"
+            onClick={() => setShowPassword(!showPassword)}
+          >
+            {showPassword ? <EyeOff /> : <Eye />}
+          </span>
+        </div>
+
+        <button type="submit" className="button">
           Create Account
         </button>
         <button
           type="button"
-          style={{ ...styles.button, marginTop: '10px' }}
+          className="button button-secondary"
           onClick={() => navigate('/signin')}
         >
           Back to Sign In
         </button>
-        {submitted && <p style={styles.success}>✅ Signup successful!</p>}
+
+        {submitted && (
+          <p className="success-message">✅ Signup successful!</p>
+        )}
       </form>
     </div>
   );
 }
-
-const styles = {
-  container: {
-    display: 'flex',
-    minHeight: '100vh',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: '2rem',
-    backgroundColor: '#f0f0f0',
-  },
-  form: {
-    backgroundColor: '#fff',
-    padding: '2rem',
-    borderRadius: '10px',
-    boxShadow: '0 0 10px rgba(0,0,0,0.1)',
-    width: '100%',
-    maxWidth: '400px',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '1rem',
-  },
-  title: {
-    textAlign: 'center',
-    marginBottom: '1rem',
-  },
-  input: {
-    padding: '12px',
-    border: '1px solid #ccc',
-    borderRadius: '6px',
-    fontSize: '1rem',
-  },
-  button: {
-    padding: '12px',
-    backgroundColor: '#28a745',
-    color: '#fff',
-    border: 'none',
-    borderRadius: '6px',
-    fontWeight: 'bold',
-    fontSize: '1rem',
-    cursor: 'pointer',
-  },
-  success: {
-    color: 'green',
-    textAlign: 'center',
-  },
-};
 
 export default Signup;
