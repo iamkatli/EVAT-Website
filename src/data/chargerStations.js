@@ -12,6 +12,7 @@ const chargerLocations = [
   { id: 11, lat: -38.1507, lng: 144.3344, name: 'Newton Station', reliability: 0.86 },
   { id: 12, lat: -38.2363, lng: 144.3708, name: 'Armstrong Creek Station', reliability: 0.56 },
   { id: 13, lat: -38.2140, lng: 144.3686, name: 'Charlemont Station', reliability: 0.76 },
+  { id: 13, lat: -38.2176, lng: 144.3247, name: 'Mount Dundeed', reliability: 0.85 },
 ];
 
 export default chargerLocations;
