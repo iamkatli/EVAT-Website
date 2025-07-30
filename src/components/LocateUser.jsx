@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { useMap, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
-import redIconUrl from "../assets/marker-icon-red.png";
+import markerIconUrl from "../assets/marker-icon-red.png";
 
-const redIcon = new L.Icon({
-  iconUrl: redIconUrl,
+const markerIcon = new L.Icon({
+  iconUrl: markerIconUrl,
   iconSize: [25, 41],
   iconAnchor: [12, 41],
   popupAnchor: [1, -34],
@@ -36,7 +36,7 @@ function LocateUser() {
   }, [map]);
 
   return position ? (
-    <Marker position={position} icon={redIcon}>
+    <Marker position={position} icon={markerIcon}>
       <Popup className="custom-popup">You are here</Popup>
     </Marker>
 
