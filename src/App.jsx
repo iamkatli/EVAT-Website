@@ -6,7 +6,6 @@ import Favourite from './pages/Favourite';
 import Map from './pages/Map';
 
 
-
 function App() {
   return (
     <Router>

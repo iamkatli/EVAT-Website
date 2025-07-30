@@ -7,23 +7,32 @@ import L from 'leaflet';
 import 'leaflet.markercluster';
 import NavBar from '../components/NavBar';
 import LocateUser from "../components/LocateUser";
-import chargerIconUrl from "../assets/charger-station-icon.png";
+import chargerGreen from '../assets/charger-icon-green.png';
+import chargerYellow from '../assets/charger-icon-yellow.png';
+import chargerRed from '../assets/charger-icon-red.png';
 import chargerLocations from "../data/chargerLocations";
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
-  iconRetinaUrl:   'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-  iconUrl:         'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-  shadowUrl:       'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
 });
 
-const chargerIcon = new L.Icon({
-  iconUrl:    chargerIconUrl,
-  iconSize:   [30, 45],
-  iconAnchor: [15, 45],
-  popupAnchor:[0, -40],
-  shadowUrl:  'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-  shadowSize: [41, 41],
+const greenIcon = new L.Icon({
+  iconUrl: chargerGreen,
+  iconSize: [32, 32],
+  iconAnchor: [16, 32],
+});
+const yellowIcon = new L.Icon({
+  iconUrl: chargerYellow,
+  iconSize: [32, 32],
+  iconAnchor: [16, 32],
+});
+const redIcon = new L.Icon({
+  iconUrl: chargerRed,
+  iconSize: [32, 32],
+  iconAnchor: [16, 32],
 });
 
 function ClusterMarkers() {
@@ -33,8 +42,16 @@ function ClusterMarkers() {
     const clusterGroup = L.markerClusterGroup();
 
     chargerLocations.forEach(station => {
-      const marker = L.marker([station.lat, station.lng], { icon: chargerIcon })
-        .bindPopup(`<strong>${station.name}</strong>`);
+      let icon = redIcon;
+      if (station.reliability >= 0.8) icon = greenIcon;
+      else if (station.reliability >= 0.5) icon = yellowIcon;
+
+      const marker = L.marker([station.lat, station.lng], { icon })
+        .bindPopup(`
+          <strong>${station.name}</strong><br/>
+          Reliability: ${Math.round(station.reliability * 100)}%
+        `);
+
       clusterGroup.addLayer(marker);
     });
 
