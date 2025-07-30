@@ -1,0 +1,352 @@
+/* Smart Filter Overlay */
+.smart-filter-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* Smart Filter Panel */
+.smart-filter-panel {
+  background-color: #f8f9fa;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 400px;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Header */
+.smart-filter-header {
+  background-color: #2A5F3B;
+  color: white;
+  padding: 1rem 1.5rem;
+  border-radius: 12px 12px 0 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.smart-filter-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+.close-button {
+  background-color: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  transition: background-color 0.3s;
+}
+
+.close-button:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Filter Sections */
+.filter-section {
+  padding: 1.5rem;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.filter-section:last-of-type {
+  border-bottom: none;
+}
+
+.filter-section h3 {
+  color: #2A5F3B;
+  margin: 0 0 1rem 0;
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+/* Filter Options */
+.filter-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.filter-button {
+  background-color: #e9ecef;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  color: #000;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  min-width: 80px;
+  text-align: center;
+}
+
+.filter-button:hover {
+  background-color: #dee2e6;
+}
+
+.filter-button.selected {
+  background-color: #2A5F3B;
+  color: white;
+}
+
+/* Price Range Slider */
+.price-slider-container {
+  margin-top: 1rem;
+}
+
+.price-slider {
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: #e9ecef;
+  outline: none;
+  -webkit-appearance: none;
+  margin-bottom: 0.5rem;
+}
+
+.price-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #2A5F3B;
+  cursor: pointer;
+}
+
+.price-slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #2A5F3B;
+  cursor: pointer;
+  border: none;
+}
+
+.price-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  color: #6c757d;
+}
+
+.price-range-display {
+  color: #2A5F3B;
+  font-weight: bold;
+}
+
+/* Toggle Switch Styles */
+.toggle-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.5rem;
+}
+
+.toggle-label {
+  font-size: 0.9rem;
+  color: #6c757d;
+}
+
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 24px;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.3s;
+  border-radius: 24px;
+}
+
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.3s;
+  border-radius: 50%;
+}
+
+input:checked + .toggle-slider {
+  background-color: #2A5F3B;
+}
+
+input:checked + .toggle-slider:before {
+  transform: translateX(26px);
+}
+
+/* Station Count */
+.station-count {
+  padding: 1rem 1.5rem;
+  color: #2A5F3B;
+  font-weight: bold;
+  font-size: 1rem;
+  text-align: center;
+  border-top: 1px solid #e9ecef;
+  background-color: #f8f9fa;
+}
+
+/* Action Buttons */
+.filter-actions {
+  padding: 1.5rem;
+  display: flex;
+  gap: 1rem;
+  border-top: 1px solid #e9ecef;
+}
+
+.reset-button {
+  flex: 1;
+  background-color: #e9ecef;
+  border: none;
+  padding: 0.75rem;
+  border-radius: 8px;
+  color: #000;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.reset-button:hover {
+  background-color: #dee2e6;
+}
+
+.apply-button {
+  flex: 1;
+  background-color: #2A5F3B;
+  border: none;
+  padding: 0.75rem;
+  border-radius: 8px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.apply-button:hover {
+  background-color: #1e4a2e;
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+  .smart-filter-panel {
+    width: 95%;
+    margin: 1rem;
+  }
+  
+  .filter-section {
+    padding: 1rem;
+  }
+  
+  .filter-actions {
+    padding: 1rem;
+  }
+  
+  .filter-button {
+    min-width: 70px;
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+  }
+} 
+
+/* Dark Mode for Smart Filter Modal */
+body.dark-mode .smart-filter-panel {
+  background-color: #181818;
+  color: #fff;
+}
+body.dark-mode .smart-filter-header {
+  background-color: #111;
+  color: #fff;
+}
+body.dark-mode .filter-section {
+  background: transparent;
+  border-bottom: 1px solid #333;
+}
+body.dark-mode .filter-section h3 {
+  color: #4CAF50;
+}
+body.dark-mode .filter-button {
+  background-color: #222;
+  color: #fff;
+}
+body.dark-mode .filter-button.selected {
+  background-color: #4CAF50;
+  color: #fff;
+}
+body.dark-mode .price-slider-container {
+  color: #fff;
+}
+body.dark-mode .price-labels {
+  color: #bbb;
+}
+body.dark-mode .price-range-display {
+  color: #4CAF50;
+}
+body.dark-mode .toggle-label {
+  color: #bbb;
+}
+body.dark-mode .toggle-slider {
+  background-color: #444;
+}
+body.dark-mode input:checked + .toggle-slider {
+  background-color: #4CAF50;
+}
+body.dark-mode .station-count {
+  background: #181818;
+  color: #4CAF50;
+  border-top: 1px solid #333;
+}
+body.dark-mode .reset-button {
+  background: #222;
+  color: #fff;
+}
+body.dark-mode .apply-button {
+  background: #4CAF50;
+  color: #fff;
+}
+body.dark-mode .apply-button:hover {
+  background: #388e3c;
+}
+body.dark-mode .reset-button:hover {
+  background: #333;
+}
+body.dark-mode .close-button {
+  background: #222;
+  color: #fff;
+}
+body.dark-mode .close-button:hover {
+  background: #333;
+} 
