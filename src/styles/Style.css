@@ -1,0 +1,246 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Arial Black', sans-serif;
+}
+
+.auth-container {
+  background-color: #2A5F3B;
+  color: #000;
+  min-height: 100vh;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.logo-image {
+  width: 160px;
+  margin: 1rem 0;
+}
+
+.logo-text {
+  font-size: 1.5rem;
+  font-weight: 900;
+  margin-bottom: 1rem;
+}
+
+.tab-row {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 1.5rem;
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+.tab {
+  font-weight: normal;
+}
+
+.tab.active {
+  font-weight: bold;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 350px;
+  gap: 1rem;
+}
+
+.label {
+  font-size: 0.9rem;
+  font-weight: bold;
+}
+
+.input-group {
+  display: flex;
+  align-items: center;
+  background-color: #e0e0e0;
+  border-radius: 4px;
+  padding: 0.5rem;
+}
+
+.input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background-color: transparent;
+  font-size: 1rem;
+}
+
+.icon {
+  margin-right: 0.5rem;
+}
+
+.icon-right {
+  margin-left: auto;
+  cursor: pointer;
+}
+
+.button {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background-color: #e0e0e0;
+  color: #000;
+  font-weight: bold;
+  font-size: 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* Success messages */
+.success-message {
+  color: green;
+  text-align: center;
+  margin-top: 1rem;
+}
+
+/* Error messages */
+.error-message {
+  color: red;
+  text-align: center;
+  margin-top: 10px;
+}
+
+/* NavBar container */
+nav {
+  display: flex;
+  justify-content: space-around;
+  background-color: #f8f9fa;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #ddd;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+/* Nav buttons */
+nav button {
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  transition: color 0.3s, font-weight 0.3s;
+  color: #555;
+  border-radius: 4px;
+}
+
+/* Hover effect */
+nav button:hover {
+  color: #007bff;
+  font-weight: bold;
+}
+
+/* Active button styling */
+nav button.active,
+nav button[style*="font-weight: bold"] {
+  color: #007bff;
+  font-weight: bold;
+  text-decoration: underline;
+}
+
+/* Remove button outline on click */
+nav button:focus {
+  outline: none;
+}
+
+/* Filter Toggle Button */
+.filter-toggle-button {
+  position: absolute;
+  top: 80px;
+  right: 20px;
+  z-index: 1000;
+  background: #2A5F3B;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: bold;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  transition: all 0.3s ease;
+  font-family: 'Arial Black', sans-serif;
+}
+
+.filter-toggle-button:hover {
+  background: #1e4a2e;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.filter-toggle-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+/* Map Popup Styles */
+.leaflet-popup-content {
+  margin: 0;
+  padding: 0;
+}
+
+.leaflet-popup-content h3 {
+  margin: 0 0 0.5rem 0;
+  color: #2A5F3B;
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+.leaflet-popup-content p {
+  margin: 0.25rem 0;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.leaflet-popup-content strong {
+  color: #2A5F3B;
+  font-weight: bold;
+}
+
+/* Dark Mode Styles */
+body.dark-mode {
+  background-color: #1a1a1a;
+  color: #ffffff;
+}
+
+body.dark-mode nav {
+  background-color: #2d2d2d;
+  border-bottom: 1px solid #444;
+}
+
+body.dark-mode nav button {
+  color: #ccc;
+}
+
+body.dark-mode nav button:hover {
+  color: #4CAF50;
+}
+
+body.dark-mode nav button.active,
+body.dark-mode nav button[style*="font-weight: bold"] {
+  color: #4CAF50;
+}
+
+/* Dark mode for map tiles */
+body.dark-mode .leaflet-tile-pane {
+  filter: invert(90%) hue-rotate(180deg);
+}
+
+/* Dark mode for popups */
+body.dark-mode .leaflet-popup-content-wrapper {
+  background-color: #2d2d2d;
+  color: #ffffff;
+}
+
+body.dark-mode .leaflet-popup-content h3 {
+  color: #4CAF50;
+}
+
+body.dark-mode .leaflet-popup-content strong {
+  color: #4CAF50;
+}
