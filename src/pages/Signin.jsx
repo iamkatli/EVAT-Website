@@ -34,7 +34,7 @@ function Signin() {
       localStorage.setItem('currentUser', JSON.stringify(foundUser));
 
       // Redirect to profile page
-      navigate('/profile');
+      navigate('/map');
     } else {
       setError('Invalid email or password. Please try again!');
       setSubmitted(false);
@@ -45,11 +45,6 @@ function Signin() {
     <div className="auth-container">
       <img src="/chameleon.png" alt="Chameleon" className="logo-image"/>
       <h1 className="logo-text">Chameleon</h1>
-
-        <div className="tab-row">
-          <span className="tab active">Sign in</span>
-          <span className="tab" onClick={() => navigate('/signup')}>Create Account</span>
-        </div>
 
         <form onSubmit={handleSubmit} className="auth-form">
           <label className="label">Email</label>
@@ -87,6 +82,9 @@ function Signin() {
 
           <button type="submit" className="button">
             SIGN IN
+          </button>
+          <button type="submit" className="button" onClick={() => navigate('/signup')}>
+            SIGN UP
           </button>
         </form>
 

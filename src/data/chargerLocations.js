@@ -9,7 +9,7 @@ const chargerLocations = [
   { id: 8, lat: -38.1484, lng: 144.3570, name: 'Geelong CBD Station', reliability: 0.55 },
   { id: 9, lat: -38.2110, lng: 144.3068, name: 'Waurn Ponds Station', reliability: 0.32 },
   { id: 10, lat: -38.0730, lng: 144.3591, name: 'Corio Station', reliability: 0.45 },
-  { id: 11, lat: -38.1507, lng: 144.3344, name: 'Corio Station', reliability: 0.86 },
+  { id: 11, lat: -38.1507, lng: 144.3344, name: 'Newton Station', reliability: 0.86 },
   { id: 12, lat: -38.2363, lng: 144.3708, name: 'Armstrong Creek Station', reliability: 0.56 },
   { id: 13, lat: -38.2140, lng: 144.3686, name: 'Charlemont Station', reliability: 0.76 },
 ];
