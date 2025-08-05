@@ -147,3 +147,100 @@ nav button[style*="font-weight: bold"] {
 nav button:focus {
   outline: none;
 }
+
+/* Filter Toggle Button */
+.filter-toggle-button {
+  position: absolute;
+  top: 80px;
+  right: 20px;
+  z-index: 1000;
+  background: #2A5F3B;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: bold;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  transition: all 0.3s ease;
+  font-family: 'Arial Black', sans-serif;
+}
+
+.filter-toggle-button:hover {
+  background: #1e4a2e;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.filter-toggle-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+/* Map Popup Styles */
+.leaflet-popup-content {
+  margin: 0;
+  padding: 0;
+}
+
+.leaflet-popup-content h3 {
+  margin: 0 0 0.5rem 0;
+  color: #2A5F3B;
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+.leaflet-popup-content p {
+  margin: 0.25rem 0;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.leaflet-popup-content strong {
+  color: #2A5F3B;
+  font-weight: bold;
+}
+
+/* Dark Mode Styles */
+body.dark-mode {
+  background-color: #1a1a1a;
+  color: #ffffff;
+}
+
+body.dark-mode nav {
+  background-color: #2d2d2d;
+  border-bottom: 1px solid #444;
+}
+
+body.dark-mode nav button {
+  color: #ccc;
+}
+
+body.dark-mode nav button:hover {
+  color: #4CAF50;
+}
+
+body.dark-mode nav button.active,
+body.dark-mode nav button[style*="font-weight: bold"] {
+  color: #4CAF50;
+}
+
+/* Dark mode for map tiles */
+body.dark-mode .leaflet-tile-pane {
+  filter: invert(90%) hue-rotate(180deg);
+}
+
+/* Dark mode for popups */
+body.dark-mode .leaflet-popup-content-wrapper {
+  background-color: #2d2d2d;
+  color: #ffffff;
+}
+
+body.dark-mode .leaflet-popup-content h3 {
+  color: #4CAF50;
+}
+
+body.dark-mode .leaflet-popup-content strong {
+  color: #4CAF50;
+}

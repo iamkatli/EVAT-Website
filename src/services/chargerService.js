@@ -9,7 +9,14 @@ function normalize(s) {
     lat: Number(s.lat),
     lng: Number(s.lng),
     reliability: typeof s.reliability === 'number' ? s.reliability : undefined,
-    lastUpdated: s.lastUpdated ?? null
+    lastUpdated: s.lastUpdated ?? null,
+
+
+    vehicleType: s.vehicleType ?? [],
+    chargerType: s.chargerType ?? [],
+    chargingSpeed: s.chargingSpeed ?? '',
+    priceRange: typeof s.priceRange === 'number' ? s.priceRange : 0,
+    isAvailable: typeof s.isAvailable === 'boolean' ? s.isAvailable : false
   };
 }
 
@@ -29,22 +36,9 @@ function jitter(st) {
 export async function getChargers({ bbox } = {}) {
   if (USE_MOCK) {
     await new Promise(r => setTimeout(r, 300));
-    return chargerStations.filter(s => inBbox(s, bbox)).map(normalize).map(jitter);
+    return chargerStations
+      .filter(s => inBbox(s, bbox))
+      .map(normalize)
+      .map(jitter);
   }
-
 }
-
-// import { fetchJson } from './http';
-
-// export async function getChargers({ bbox } = {}) {
-//   const q = bbox ? `?bbox=${bbox.join(',')}` : '';
-//   const data = await fetchJson(`/api/chargers${q}`);
-//   return Array.isArray(data) ? data.map(s => ({
-//     id: s.id,
-//     name: s.name ?? 'Unknown',
-//     lat: Number(s.lat ?? s.latitude),
-//     lng: Number(s.lng ?? s.longitude),
-//     reliability: typeof s.reliability === 'number' ? s.reliability : undefined,
-//     lastUpdated: s.lastUpdated ?? null
-//   })) : [];
-// }
