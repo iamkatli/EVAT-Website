@@ -1,130 +1,158 @@
-import React, { useState, useMemo } from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import NavBar from '../components/NavBar';
-import SmartFilter from '../components/SmartFilter';
+import React, { useEffect, useState, useMemo } from 'react';
+import { MapContainer, TileLayer, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
+import 'leaflet.markercluster/dist/MarkerCluster.css';
+import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 import L from 'leaflet';
-import LocateUser from "../components/LocateUser";
-import chargerIconUrl from "../assets/charger-station-icon.png";
-import chargerLocations from "../data/chargerLocations";
-import MarkerClusterGroup from 'react-leaflet-cluster';
+import NavBar from '../components/NavBar';
+import LocateUser from '../components/LocateUser';
+import ClusterMarkers from '../components/ClusterMarkers';
+import SmartFilter from '../components/SmartFilter';
+import { getChargers } from '../services/chargerService';
 
-
+// تنظیم آیکون پیش‌فرض Leaflet
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
-  iconRetinaUrl:
-    'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
   iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png'
 });
 
-const chargerIcon = new L.Icon({
-  iconUrl: chargerIconUrl,
-  iconSize: [30, 45],
-  iconAnchor: [15, 45],
-  popupAnchor: [0, -40],
-  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-  shadowSize: [41, 41]
-});
+// کامپوننتی برای مانیتور کردن محدوده دید نقشه
+function BoundsWatcher({ onChange }) {
+  const map = useMapEvents({
+    moveend() {
+      const b = map.getBounds();
+      onChange([b.getWest(), b.getSouth(), b.getEast(), b.getNorth()]);
+    }
+  });
 
+  useEffect(() => {
+    const b = map.getBounds();
+    onChange([b.getWest(), b.getSouth(), b.getEast(), b.getNorth()]);
+  }, [map, onChange]);
 
-function Map() {
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  return null;
+}
+
+export default function Map() {
+  // State اصلی فیلترها
   const [filters, setFilters] = useState({
     vehicleType: [],
     chargerType: [],
     chargingSpeed: [],
     priceRange: 100,
     showOnlyAvailable: false,
-    darkMode: false
+    darkMode: false,
+    showReliability: true // NEW: کنترل Reliability Overlay
   });
 
-  // Filter the charger locations based on selected filters
-  const filteredLocations = useMemo(() => {
-    return chargerLocations.filter(location => {
-      // Vehicle Type filter
-      if (filters.vehicleType.length > 0) {
-        const hasMatchingVehicleType = filters.vehicleType.some(type => 
-          location.vehicleType.includes(type)
-        );
-        if (!hasMatchingVehicleType) return false;
-      }
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [stations, setStations] = useState([]);
+  const [bbox, setBbox] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [err, setErr] = useState('');
 
-      // Charger Type filter
-      if (filters.chargerType.length > 0) {
-        const hasMatchingChargerType = filters.chargerType.some(type => 
-          location.chargerType.includes(type)
-        );
-        if (!hasMatchingChargerType) return false;
-      }
+  // دریافت داده‌ها از API
+  useEffect(() => {
+    let mounted = true;
+    let id;
 
-      // Charging Speed filter
-      if (filters.chargingSpeed.length > 0) {
-        if (!filters.chargingSpeed.includes(location.chargingSpeed)) {
-          return false;
-        }
+    const load = async () => {
+      try {
+        setErr('');
+        const data = await getChargers(bbox ? { bbox } : undefined);
+        if (mounted) setStations(Array.isArray(data) ? data : []);
+      } catch (e) {
+        if (mounted) setErr(e.message || 'Failed to load chargers');
+      } finally {
+        if (mounted) setLoading(false);
       }
+    };
 
-      // Price Range filter
-      if (location.priceRange > filters.priceRange) {
-        return false;
-      }
+    load();
+    id = setInterval(load, 15000);
+    return () => {
+      mounted = false;
+      clearInterval(id);
+    };
+  }, [bbox]);
 
-      // Availability filter
-      if (filters.showOnlyAvailable && !location.isAvailable) {
-        return false;
-      }
+  // اعمال فیلترها روی داده‌های دریافتی
+  const filteredStations = useMemo(() => {
+    return stations.filter(location => {
+      if (filters.vehicleType.length > 0 &&
+        !filters.vehicleType.some(type => location.vehicleType?.includes(type))) return false;
+
+      if (filters.chargerType.length > 0 &&
+        !filters.chargerType.some(type => location.chargerType?.includes(type))) return false;
+
+      if (filters.chargingSpeed.length > 0 &&
+        !filters.chargingSpeed.includes(location.chargingSpeed)) return false;
+
+      if (location.priceRange > filters.priceRange) return false;
+
+      if (filters.showOnlyAvailable && !location.isAvailable) return false;
 
       return true;
     });
-  }, [filters]);
+  }, [stations, filters]);
 
-  const handleApplyFilters = (newFilters) => {
-    setFilters(newFilters);
-  };
-
-  // Apply dark mode if enabled
-  React.useEffect(() => {
-    if (filters.darkMode) {
-      document.body.classList.add('dark-mode');
-    } else {
-      document.body.classList.remove('dark-mode');
-    }
+  // Dark mode toggle
+  useEffect(() => {
+    document.body.classList.toggle('dark-mode', filters.darkMode);
   }, [filters.darkMode]);
 
   return (
     <div>
       <NavBar />
-      <div style={{ height: '100vh', width: '100%', position: 'relative' }}>
-        {/* Filter Button */}
-        <button 
+      <div style={{ position: 'relative', height: '100vh', width: '100%' }}>
+        
+        {/* دکمه باز کردن SmartFilter */}
+        <button
           className="filter-toggle-button"
           onClick={() => setIsFilterOpen(true)}
+          style={{ position: 'absolute', top: 12, right: 12, zIndex: 1000 }}
         >
           🔍 Smart Filters
         </button>
 
+        {/* پیام‌ها */}
+        {loading && (
+          <div style={{
+            position: 'absolute',
+            top: 12,
+            left: 12,
+            zIndex: 1000,
+            background: '#fff',
+            padding: '6px 10px',
+            borderRadius: 6
+          }}>
+            Loading…
+          </div>
+        )}
+        {err && (
+          <div style={{
+            position: 'absolute',
+            top: 44,
+            left: 12,
+            zIndex: 1000,
+            background: '#ffdddd',
+            padding: '6px 10px',
+            borderRadius: 6
+          }}>
+            {err}
+          </div>
+        )}
+
+        {/* نقشه */}
         <MapContainer center={[-37.8136, 144.9631]} zoom={13} style={{ height: '100%', width: '100%' }}>
           <TileLayer
             url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
             attribution='&copy; OpenStreetMap contributors'
           />
-          {filteredLocations.map((station) => (
-            <Marker key={station.id} position={[station.lat, station.lng]} icon={chargerIcon}>
-              <Popup>
-                <div>
-                  <h3>{station.name}</h3>
-                  <p><strong>Vehicle Types:</strong> {station.vehicleType.join(', ')}</p>
-                  <p><strong>Charger Types:</strong> {station.chargerType.join(', ')}</p>
-                  <p><strong>Charging Speed:</strong> {station.chargingSpeed}</p>
-                  <p><strong>Price:</strong> ${station.priceRange}</p>
-                  <p><strong>Status:</strong> <span style={{ color: station.isAvailable ? '#28a745' : '#dc3545' }}>
-                    {station.isAvailable ? 'Available' : 'Unavailable'}
-                  </span></p>
-                </div>
-              </Popup>
-            </Marker>
-          ))}
+          <BoundsWatcher onChange={setBbox} />
+          <ClusterMarkers showReliability={filters.showReliability} stations={filteredStations} />
           <LocateUser />
         </MapContainer>
 
@@ -132,15 +160,12 @@ function Map() {
         <SmartFilter
           isOpen={isFilterOpen}
           onClose={() => setIsFilterOpen(false)}
-          onApplyFilters={handleApplyFilters}
+          onApplyFilters={(newFilters) => setFilters(newFilters)}
           filters={filters}
           setFilters={setFilters}
-          filteredCount={filteredLocations.length}
+          filteredCount={filteredStations.length}
         />
       </div>
     </div>
   );
 }
-
-export default Map;
-

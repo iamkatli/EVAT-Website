@@ -11,6 +11,7 @@ import '../styles/SmartFilter.css';
  * - Set price range with a slider ($0-$100)
  * - Toggle availability filter (show only available stations)
  * - Toggle dark mode for the entire application
+ * - Toggle reliability overlay (NEW)
  * 
  * @param {boolean} isOpen - Controls modal visibility
  * @param {function} onClose - Callback to close the modal
@@ -35,50 +36,42 @@ const SmartFilter = ({ isOpen, onClose, onApplyFilters, filters, setFilters, fil
 
   /**
    * Toggle vehicle type selection
-   * Adds or removes the selected vehicle type from the filter array
-   * @param {string} type - The vehicle type to toggle
    */
   const handleVehicleTypeToggle = (type) => {
     setLocalFilters(prev => ({
       ...prev,
       vehicleType: prev.vehicleType.includes(type)
-        ? prev.vehicleType.filter(t => t !== type) // Remove if already selected
-        : [...prev.vehicleType, type] // Add if not selected
+        ? prev.vehicleType.filter(t => t !== type)
+        : [...prev.vehicleType, type]
     }));
   };
 
   /**
    * Toggle charger type selection
-   * Adds or removes the selected charger type from the filter array
-   * @param {string} type - The charger type to toggle
    */
   const handleChargerTypeToggle = (type) => {
     setLocalFilters(prev => ({
       ...prev,
       chargerType: prev.chargerType.includes(type)
-        ? prev.chargerType.filter(t => t !== type) // Remove if already selected
-        : [...prev.chargerType, type] // Add if not selected
+        ? prev.chargerType.filter(t => t !== type)
+        : [...prev.chargerType, type]
     }));
   };
 
   /**
    * Toggle charging speed selection
-   * Adds or removes the selected charging speed from the filter array
-   * @param {string} speed - The charging speed to toggle
    */
   const handleChargingSpeedToggle = (speed) => {
     setLocalFilters(prev => ({
       ...prev,
       chargingSpeed: prev.chargingSpeed.includes(speed)
-        ? prev.chargingSpeed.filter(s => s !== speed) // Remove if already selected
-        : [...prev.chargingSpeed, speed] // Add if not selected
+        ? prev.chargingSpeed.filter(s => s !== speed)
+        : [...prev.chargingSpeed, speed]
     }));
   };
 
   /**
    * Update price range filter
-   * Updates the maximum price filter value based on slider position
-   * @param {Event} event - The slider change event
    */
   const handlePriceRangeChange = (event) => {
     const value = parseInt(event.target.value);
@@ -90,7 +83,6 @@ const SmartFilter = ({ isOpen, onClose, onApplyFilters, filters, setFilters, fil
 
   /**
    * Toggle availability filter
-   * Shows/hides unavailable charging stations
    */
   const handleAvailabilityToggle = () => {
     setLocalFilters(prev => ({
@@ -101,7 +93,6 @@ const SmartFilter = ({ isOpen, onClose, onApplyFilters, filters, setFilters, fil
 
   /**
    * Toggle dark mode
-   * Enables/disables dark mode for the entire application
    */
   const handleDarkModeToggle = () => {
     setLocalFilters(prev => ({
@@ -111,8 +102,18 @@ const SmartFilter = ({ isOpen, onClose, onApplyFilters, filters, setFilters, fil
   };
 
   /**
+   * Toggle reliability overlay (NEW)
+   * Enables/disables the reliability score overlay on the map
+   */
+  const handleReliabilityToggle = () => {
+    setLocalFilters(prev => ({
+      ...prev,
+      showReliability: !prev.showReliability
+    }));
+  };
+
+  /**
    * Reset all filters to default values
-   * Clears all selections and sets price range to maximum
    */
   const handleReset = () => {
     const resetFilters = {
@@ -121,22 +122,21 @@ const SmartFilter = ({ isOpen, onClose, onApplyFilters, filters, setFilters, fil
       chargingSpeed: [],
       priceRange: 100,
       showOnlyAvailable: false,
-      darkMode: false
+      darkMode: false,
+      showReliability: true // NEW: reset reliability toggle to default (enabled)
     };
     setLocalFilters(resetFilters);
   };
 
   /**
    * Apply the current filter settings
-   * Updates parent component with new filters and closes modal
    */
   const handleApplyFilter = () => {
-    setFilters(localFilters); // Update parent component state
-    onApplyFilters(localFilters); // Notify parent of filter changes
-    onClose(); // Close the modal
+    setFilters(localFilters);
+    onApplyFilters(localFilters);
+    onClose();
   };
 
-  // Don't render anything if modal is not open
   if (!isOpen) return null;
 
   return (
@@ -202,7 +202,6 @@ const SmartFilter = ({ isOpen, onClose, onApplyFilters, filters, setFilters, fil
         <div className="filter-section">
           <h3>Price Range</h3>
           <div className="price-slider-container">
-            {/* Price range slider - allows users to set maximum price */}
             <input
               type="range"
               min="0"
@@ -211,7 +210,6 @@ const SmartFilter = ({ isOpen, onClose, onApplyFilters, filters, setFilters, fil
               onChange={handlePriceRangeChange}
               className="price-slider"
             />
-            {/* Price labels showing min, current range, and max values */}
             <div className="price-labels">
               <span>$0</span>
               <span className="price-range-display">$0-${localFilters.priceRange}</span>
@@ -225,7 +223,6 @@ const SmartFilter = ({ isOpen, onClose, onApplyFilters, filters, setFilters, fil
           <h3>Availability</h3>
           <div className="toggle-container">
             <span className="toggle-label">show only available stations</span>
-            {/* Toggle switch for availability filter */}
             <label className="toggle-switch">
               <input
                 type="checkbox"
@@ -242,12 +239,27 @@ const SmartFilter = ({ isOpen, onClose, onApplyFilters, filters, setFilters, fil
           <h3>Dark Mode</h3>
           <div className="toggle-container">
             <span className="toggle-label">enable dark mode</span>
-            {/* Toggle switch for dark mode */}
             <label className="toggle-switch">
               <input
                 type="checkbox"
                 checked={localFilters.darkMode}
                 onChange={handleDarkModeToggle}
+              />
+              <span className="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+
+        {/* Reliability Overlay Toggle Section (NEW) */}
+        <div className="filter-section">
+          <h3>Reliability Overlay</h3>
+          <div className="toggle-container">
+            <span className="toggle-label">show reliability layer</span>
+            <label className="toggle-switch">
+              <input
+                type="checkbox"
+                checked={localFilters.showReliability}
+                onChange={handleReliabilityToggle}
               />
               <span className="toggle-slider"></span>
             </label>
@@ -273,4 +285,4 @@ const SmartFilter = ({ isOpen, onClose, onApplyFilters, filters, setFilters, fil
   );
 };
 
-export default SmartFilter; 
+export default SmartFilter;
