@@ -1,26 +1,18 @@
-import {useState, useEffect} from 'react';
-import {useNavigate} from 'react-router-dom';
-import {User, Phone, Mail, Eye, HelpCircle} from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import NavBar from '../components/NavBar';
 import '../styles/Style.css';
 
 function Profile() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
-  //Act like a session
-  const getCurrentUser = () => {
-    const storedUser = localStorage.getItem('currentUser');
-    return storedUser ? JSON.parse(storedUser) : null;
-  };
-  const [showChangePassword, setShowChangePassword] = useState(false);
-  const [newPassword, setNewPassword] = useState('');
 
   useEffect(() => {
-    const currentUser = getCurrentUser();
-    if (currentUser) {
-      setUser(currentUser);
+    const storedUser = localStorage.getItem('currentUser');
+    if (storedUser) {
+      const parsedUser = JSON.parse(storedUser);
+      setUser(parsedUser);
     } else {
-      // No logged-in user found, redirect to login
       navigate('/login');
     }
   }, [navigate]);
@@ -40,32 +32,16 @@ function Profile() {
         <div className="auth-form">
           <h2 className="logo-text">👤 User Profile</h2>
 
-          <p><strong>First Name:</strong> {user.firstName}</p>
-          <p><strong>Last Name:</strong> {user.lastName}</p>
+          <p><strong>Full Name:</strong> {user.fullName}</p>
           <p><strong>Email:</strong> {user.email}</p>
-          <p><strong>Mobile:</strong> {user.mobile}</p>
-
-          {showChangePassword && (
-            <div className="input-group" style={{ marginTop: '1rem' }}>
-              <input
-                type="password"
-                placeholder="New Password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                className="input"
-              />
-              <button className="button" onClick={handlePasswordChange}>
-                Save New Password
-              </button>
-            </div>
-          )}
+          <p><strong>Role:</strong> {user.role || 'N/A'}</p>
 
           <button
             className="button"
             style={{ marginTop: '1.5rem', backgroundColor: '#f44336' }}
             onClick={handleSignOut}
           >
-          🔓 Sign Out
+            🔓 Sign Out
           </button>
 
           <div className="help-center-link" style={{ marginTop: '1.5rem' }}>

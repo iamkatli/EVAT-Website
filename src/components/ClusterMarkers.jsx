@@ -9,11 +9,31 @@ function ClusterMarkers({ showReliability, stations }) {
 
   useEffect(() => {
     const group = L.markerClusterGroup();
+
     stations.forEach(st => {
+      const lat = st.latitude;
+      const lng = st.longitude;
+
+      // Skip invalid coordinates
+      if (typeof lat !== 'number' || typeof lng !== 'number') return;
+
       const icon = iconForReliability(showReliability, st.reliability);
-      const html = `<strong>${st.name}</strong>${showReliability && typeof st.reliability === 'number' ? `<br/>Reliability: ${Math.round(st.reliability * 100)}%` : ''}`;
-      group.addLayer(L.marker([st.lat, st.lng], { icon }).bindPopup(html));
+      const html = `
+        <strong>${st.operator || 'Unknown Operator'}</strong><br/>
+        Type: ${st.connection_type || 'N/A'}<br/>
+        Power: ${st.power_output || 'N/A'} kW<br/>
+        Cost: ${st.cost || 'N/A'}<br/>
+        ${showReliability && typeof st.reliability === 'number' 
+          ? `Reliability: ${Math.round(st.reliability * 100)}%<br/>` 
+          : ''}
+        Access: ${st.access_key_required === 'true' ? 'Restricted' : 'Open'}
+      `;
+
+      group.addLayer(
+        L.marker([lat, lng], { icon }).bindPopup(html)
+      );
     });
+
     map.addLayer(group);
     return () => map.removeLayer(group);
   }, [map, showReliability, stations]);
