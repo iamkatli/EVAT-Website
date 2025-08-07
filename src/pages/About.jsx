@@ -1,12 +1,12 @@
 import NavBar from '../components/NavBar';
 
-function Favourite() {
+function About() {
     return (
         <div>
             <NavBar />
-            <div>Favourite Page - To be completed</div>
+            <div>About me Page - To be completed</div>
         </div>
     )
   }
   
-  export default Favourite;
+  export default About;
