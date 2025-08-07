@@ -1,89 +1,68 @@
-import {useState} from 'react';
-import {useNavigate} from 'react-router-dom';
-import {Eye, EyeOff, KeyRound, User} from 'lucide-react'; //import icons from library
+import { useState, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Eye, EyeOff, KeyRound, User } from 'lucide-react';
+import { UserContext } from '../context/user';
 import '../styles/Style.css';
+
+const url = "https://evat.ddns.net:443/api/auth/register";
 
 function Signup() {
   const [form, setForm] = useState({
-    firstName: '',
-    lastName: '',
+    fullName: '',
     email: '',
-    mobile: '',
-    password: '' 
+    password: '',
   });
-
-  const [showPassword, setShowPassword] = useState (false); //toggle password visibility
+  const [showPassword, setShowPassword] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
-  const [errors, setErrors] = useState({});
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-    setErrors({ ...errors, [e.target.name]: '' });
+    const { name, value } = e.target;
+    setForm(prev => ({ ...prev, [name]: value }));
   };
 
-  //Check if email has been registered before
-  const checkEmail = (email) => {
-    const storedUsers = JSON.parse(localStorage.getItem('users')) || [];
-  return storedUsers.some(user => user.email === email);
-};
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError(null);
+    setSubmitted(false);
 
-    let newErrors = {};
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      });
 
-    if (checkEmail(form.email)) {
-      newErrors.email = 'This email is already registered. Please try another!';
+      const data = await response.json();
+
+      if (response.ok) {
+
+        alert(`✅ Sign Up successful: ${data.message}, welcome ${form.fullName}`);
+        navigate('/signin');
+      } else {
+        setError(data.message || "Sign up failed");
+      }
+    } catch (err) {
+      console.error('Error signing up:', err);
+      setError("An unexpected error occurred");
     }
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      setSubmitted(false);
-      return;
-    }
-
-    // Get users array or empty array
-    const storedUsers = JSON.parse(localStorage.getItem('users')) || [];
-
-    // Add new user to array
-    storedUsers.push(form);
-
-    // Save back to localStorage
-    localStorage.setItem('users', JSON.stringify(storedUsers));
-
-    setSubmitted(true);
-    setErrors({});
   };
 
   return (
     <div className="auth-container">
       <form onSubmit={handleSubmit} className="auth-form">
-        <img src="/chameleon.png" alt="Chameleon" className="logo-image"/>
+        <img src="/chameleon.png" alt="Chameleon" className="logo-image" />
         <h1 className="logo-text">Chameleon</h1>
 
-        <label className="auth-label">First Name</label>
+        <label className="auth-label">Full Name</label>
         <div className="input-group">
           <User className="icon" />
           <input
             type="text"
-            name="firstName"
-            placeholder="First Name"
-            value={form.firstName}
-            onChange={handleChange}
-            required
-            className="input"
-          />
-        </div>
-
-        <label className="auth-label">Last Name</label>
-        <div className="input-group">
-          <User className="icon" />
-          <input
-            type="text"
-            name="lastName"
-            placeholder="Last Name"
-            value={form.lastName}
+            name="fullName"
+            placeholder="Full Name"
+            value={form.fullName}
             onChange={handleChange}
             required
             className="input"
@@ -103,24 +82,6 @@ function Signup() {
             className="input"
           />
         </div>
-        {errors.email && <p className="error-message">{errors.email}</p>}
-
-        <label className="auth-label">Mobile</label>
-        <div className="input-group">
-          <User className="icon" />
-          <input
-            type="tel"
-            name="mobile"
-            placeholder="Mobile Number"
-            value={form.mobile}
-            onChange={handleChange}
-            required
-            pattern="04[0-9]{8}"
-            className="input"
-            onInvalid={e => e.target.setCustomValidity('Mobile number must start with 04 and contain 10 digits.')}
-            onInput={e => e.target.setCustomValidity('')}
-          />
-        </div>
 
         <label className="auth-label">Password</label>
         <div className="input-group">
@@ -134,10 +95,7 @@ function Signup() {
             required
             className="input"
           />
-          <span
-            className="icon-right"
-            onClick={() => setShowPassword(!showPassword)}
-          >
+          <span className="icon-right" onClick={() => setShowPassword(!showPassword)}>
             {showPassword ? <EyeOff /> : <Eye />}
           </span>
         </div>
@@ -145,6 +103,7 @@ function Signup() {
         <button type="submit" className="button">
           Create Account
         </button>
+
         <button
           type="button"
           className="button button-secondary"
@@ -153,9 +112,8 @@ function Signup() {
           Back to Sign In
         </button>
 
-        {submitted && (
-          <p className="success-message">✅ Signup successful!</p>
-        )}
+        {error && <p className="error-message">❌ {error}</p>}
+        {submitted && <p className="success-message">✅ Signup successful!</p>}
       </form>
     </div>
   );
