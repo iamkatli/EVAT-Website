@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useContext } from 'react';
 import { MapContainer, TileLayer, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
@@ -8,6 +8,7 @@ import NavBar from '../components/NavBar';
 import LocateUser from '../components/LocateUser';
 import ClusterMarkers from '../components/ClusterMarkers';
 import SmartFilter from '../components/SmartFilter';
+import { UserContext } from '../context/user';
 import { getChargers } from '../services/chargerService';
 
 // تنظیم آیکون پیش‌فرض Leaflet
@@ -37,6 +38,8 @@ function BoundsWatcher({ onChange }) {
 
 export default function Map() {
   // State اصلی فیلترها
+  const { user } = useContext(UserContext);
+  console.log("User context:", user);
   const [filters, setFilters] = useState({
     vehicleType: [],
     chargerType: [],
@@ -61,7 +64,7 @@ export default function Map() {
     const load = async () => {
       try {
         setErr('');
-        const data = await getChargers(bbox ? { bbox } : undefined);
+        const data = await getChargers(user, bbox ? { bbox } : undefined);
         if (mounted) setStations(Array.isArray(data) ? data : []);
       } catch (e) {
         if (mounted) setErr(e.message || 'Failed to load chargers');
@@ -76,32 +79,66 @@ export default function Map() {
       mounted = false;
       clearInterval(id);
     };
-  }, [bbox]);
+  }, [bbox, user]);
 
   // اعمال فیلترها روی داده‌های دریافتی
-  const filteredStations = useMemo(() => {
-    return stations.filter(location => {
-      if (filters.vehicleType.length > 0 &&
-        !filters.vehicleType.some(type => location.vehicleType?.includes(type))) return false;
+const filteredStations = useMemo(() => {
+  return stations.filter(station => {
+    const {
+      connection_type,
+      power_output,
+      cost,
+      is_operational
+    } = station;
 
-      if (filters.chargerType.length > 0 &&
-        !filters.chargerType.some(type => location.chargerType?.includes(type))) return false;
+    // Filter by Charger Type
+    if (
+      filters.chargerType.length > 0 &&
+      !filters.chargerType.includes(connection_type)
+    ) {
+      return false;
+    }
 
-      if (filters.chargingSpeed.length > 0 &&
-        !filters.chargingSpeed.includes(location.chargingSpeed)) return false;
+    // Filter by Charging Speed (based on power_output)
+    if (filters.chargingSpeed.length > 0) {
+      const speed = parseFloat(power_output);
+      const speedFilter = filters.chargingSpeed.some(range => {
+        if (range === '<22kW') return speed < 22;
+        if (range === '22-50kW') return speed >= 22 && speed <= 50;
+        if (range === '50-150kW') return speed > 50 && speed <= 150;
+        if (range === '150kW+') return speed > 150;
+        return false;
+      });
+      if (!speedFilter) return false;
+    }
 
-      if (location.priceRange > filters.priceRange) return false;
+    // Filter by Price Range
+    if (typeof cost === 'string') {
+      const match = cost.match(/\$([\d.]+)/);
+      const price = match ? parseFloat(match[1]) : 0;
+      if (price > filters.priceRange) return false;
+    }
 
-      if (filters.showOnlyAvailable && !location.isAvailable) return false;
+    // Filter by Availability
+    if (filters.showOnlyAvailable && station.is_operational !== 'true') {
+      return false;
+    }
 
-      return true;
-    });
-  }, [stations, filters]);
+    return true;
+  });
+}, [stations, filters]);
+
 
   // Dark mode toggle
   useEffect(() => {
     document.body.classList.toggle('dark-mode', filters.darkMode);
   }, [filters.darkMode]);
+
+
+  //Log filtered stations to console
+  useEffect(() => {
+  console.log('Filtered stations:', filteredStations);
+}, [filteredStations]);
 
   return (
     <div>

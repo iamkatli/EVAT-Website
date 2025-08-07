@@ -30,21 +30,21 @@ const SmartFilter = ({ isOpen, onClose, onApplyFilters, filters, setFilters, fil
   }, [filters]);
 
   // Available filter options - these could be moved to a config file in a larger app
-  const vehicleTypes = ['Sedan', 'Hatchback', 'SUV'];
-  const chargerTypes = ['CCS', 'CHAdeMO', 'Type 1', 'Type 2'];
+  // const vehicleTypes = ['Sedan', 'Hatchback', 'SUV'];
+  const chargerTypes = ['CCS (Type 2)', 'CHAdeMO', 'Type 1 (J1772)', 'Type 2 (Socket Only)'];
   const chargingSpeeds = ['<22kW', '22-50kW', '50-150kW', '150kW+'];
 
-  /**
-   * Toggle vehicle type selection
-   */
-  const handleVehicleTypeToggle = (type) => {
-    setLocalFilters(prev => ({
-      ...prev,
-      vehicleType: prev.vehicleType.includes(type)
-        ? prev.vehicleType.filter(t => t !== type)
-        : [...prev.vehicleType, type]
-    }));
-  };
+  // /**
+  //  * Toggle vehicle type selection
+  //  */
+  // const handleVehicleTypeToggle = (type) => {
+  //   setLocalFilters(prev => ({
+  //     ...prev,
+  //     vehicleType: prev.vehicleType.includes(type)
+  //       ? prev.vehicleType.filter(t => t !== type)
+  //       : [...prev.vehicleType, type]
+  //   }));
+  // };
 
   /**
    * Toggle charger type selection
@@ -151,7 +151,7 @@ const SmartFilter = ({ isOpen, onClose, onApplyFilters, filters, setFilters, fil
         </div>
 
         {/* Vehicle Type Filter Section */}
-        <div className="filter-section">
+        {/* <div className="filter-section">
           <h3>Vehicle Type</h3>
           <div className="filter-options">
             {vehicleTypes.map(type => (
@@ -164,7 +164,7 @@ const SmartFilter = ({ isOpen, onClose, onApplyFilters, filters, setFilters, fil
               </button>
             ))}
           </div>
-        </div>
+        </div> */}
 
         {/* Charger Type Filter Section */}
         <div className="filter-section">
