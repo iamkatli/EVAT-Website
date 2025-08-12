@@ -1,10 +1,10 @@
 import { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, KeyRound, User } from 'lucide-react';
+import { Eye, EyeOff, KeyRound, User as UserIcon } from 'lucide-react';
 import { UserContext } from '../context/user';
 import '../styles/Style.css';
 
-const url = "https://evat.ddns.net:443/api/auth/login";
+const LOGIN_URL = 'https://evat.ddns.net:443/api/auth/login';
 
 function Signin() {
   const [email, setEmail] = useState('');
@@ -21,28 +21,44 @@ function Signin() {
     setSubmitted(false);
 
     try {
-      const response = await fetch(url, {
+      const response = await fetch(LOGIN_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password })
       });
-//need to delete user data then reload it from api after sign in
+
       const data = await response.json();
 
       if (response.ok) {
-        const userData = { ...data.data.user, token: data.data.user.refreshToken };
+        // Extract the access token from the API response
+        const accessToken = data?.data?.accessToken?.accessToken;
+
+        if (!accessToken) {
+          setError('Login succeeded but no access token was returned.');
+          return;
+        }
+
+        // Build user object for context/localStorage
+        const userData = {
+          ...(data?.data?.user || data?.user || {}),
+          token: accessToken
+        };
+
+        // Persist session immediately so Map has the token on first load
         setUser(userData);
-        localStorage.setItem("user", JSON.stringify(userData));
+        localStorage.setItem('user', JSON.stringify(userData));
+
+        // Optional: keep compatibility if other parts still read `currentUser`
         localStorage.setItem('currentUser', JSON.stringify(userData));
+
         setSubmitted(true);
-        // alert(`✅ Sign In Successful: ${data.data.user.fullName}, welcome back!`);
-        navigate("/map");
+        navigate('/map');
       } else {
-        setError(data.message);
+        setError(data?.message || 'Sign in failed.');
       }
-    } catch (error) {
-      console.error('Error signing in:', error);
-      setError("An unexpected error occurred.");
+    } catch (err) {
+      console.error('Error signing in:', err);
+      setError('An unexpected error occurred.');
     }
   };
 
@@ -54,7 +70,7 @@ function Signin() {
       <form onSubmit={handleSubmit} className="auth-form">
         <label className="label">Email</label>
         <div className="input-group">
-          <User className="icon" />
+          <UserIcon className="icon" />
           <input
             className="input"
             type="text"
@@ -78,16 +94,12 @@ function Signin() {
             onChange={e => setPassword(e.target.value)}
             required
           />
-          <span
-            className="icon-right"
-            onClick={() => setShowPassword(!showPassword)}>
+          <span className="icon-right" onClick={() => setShowPassword(!showPassword)}>
             {showPassword ? <EyeOff /> : <Eye />}
           </span>
         </div>
 
-        <button type="submit" className="button">
-          SIGN IN
-        </button>
+        <button type="submit" className="button">SIGN IN</button>
         <button type="button" className="button" onClick={() => navigate('/signup')}>
           SIGN UP
         </button>

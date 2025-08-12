@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet.markercluster';
-import { iconForReliability } from '../map/chargerIcons';
+import { iconForReliability } from '../utils/chargerIcons';
 
 function ClusterMarkers({ showReliability, stations }) {
   const map = useMap();
