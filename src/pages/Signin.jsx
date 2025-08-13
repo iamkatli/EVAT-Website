@@ -4,7 +4,7 @@ import { Eye, EyeOff, KeyRound, User as UserIcon } from 'lucide-react';
 import { UserContext } from '../context/user';
 import '../styles/Style.css';
 
-const LOGIN_URL = 'https://evat.ddns.net:443/api/auth/login';
+const url = 'https://evat.ddns.net:443/api/auth/login';
 
 function Signin() {
   const [email, setEmail] = useState('');
@@ -18,40 +18,42 @@ function Signin() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
-    setSubmitted(false);
+    setSubmitted(true); //to indicate the form is now submitting
 
     try {
-      const response = await fetch(LOGIN_URL, {
+      const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
       });
 
+      //need to delete user data then reload it from api after sign in
       const data = await response.json();
 
       if (response.ok) {
-        // Extract the access token from the API response
-        const accessToken = data?.data?.accessToken?.accessToken;
+        // Extract access token from possibly nested structure
+        const accessToken =
+          data?.data?.accessToken?.accessToken || data?.data?.accessToken;
 
         if (!accessToken) {
           setError('Login succeeded but no access token was returned.');
+          setSubmitted(false);
           return;
         }
 
-        // Build user object for context/localStorage
+        // Construct user data with token included
         const userData = {
-          ...(data?.data?.user || data?.user || {}),
-          token: accessToken
+          ...(data?.data?.user || {}),
+          fullName: data?.data?.user?.fullName || 
+                    `${data?.data?.user?.firstName || ''} ${data?.data?.user?.lastName || ''}`.trim(),
+          mobile: data?.data?.user?.mobile,
+          token: accessToken,
         };
 
-        // Persist session immediately so Map has the token on first load
+        // Update context and localStorage
         setUser(userData);
-        localStorage.setItem('user', JSON.stringify(userData));
-
-        // Optional: keep compatibility if other parts still read `currentUser`
         localStorage.setItem('currentUser', JSON.stringify(userData));
-
-        setSubmitted(true);
+        // Navigate to map page after successful login
         navigate('/map');
       } else {
         setError(data?.message || 'Sign in failed.');
@@ -59,13 +61,15 @@ function Signin() {
     } catch (err) {
       console.error('Error signing in:', err);
       setError('An unexpected error occurred.');
+    } finally {
+      setSubmitted(false);
     }
   };
 
+  //UI Rendering
   return (
     <div className="auth-container">
       <img src="/chameleon.png" alt="Chameleon" className="logo-image" />
-      <h1 className="logo-text">Chameleon</h1>
 
       <form onSubmit={handleSubmit} className="auth-form">
         <label className="label">Email</label>
@@ -77,7 +81,7 @@ function Signin() {
             name="email"
             placeholder="Enter your email"
             value={email}
-            onChange={e => setEmail(e.target.value)}
+            onChange={(e) => setEmail(e.target.value)}
             required
           />
         </div>
@@ -94,14 +98,25 @@ function Signin() {
             onChange={e => setPassword(e.target.value)}
             required
           />
-          <span className="icon-right" onClick={() => setShowPassword(!showPassword)}>
+          <span
+            className="icon-right"
+            onClick={() => setShowPassword(!showPassword)}
+            role="button"
+          >
             {showPassword ? <EyeOff /> : <Eye />}
           </span>
         </div>
 
-        <button type="submit" className="button">SIGN IN</button>
-        <button type="button" className="button" onClick={() => navigate('/signup')}>
-          SIGN UP
+        <button type="submit" className="auth-button" disabled={submitted}>
+          {submitted ? "Signing In..." : "SIGN IN"}
+        </button>
+
+        <button
+          type="button"
+          className="auth-button"
+          onClick={() => navigate('/signup')}
+        >
+          CREATE NEW ACCOUNT
         </button>
       </form>
 
