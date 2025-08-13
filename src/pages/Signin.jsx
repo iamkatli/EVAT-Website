@@ -1,10 +1,10 @@
 import { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, KeyRound, User } from 'lucide-react';
+import { Eye, EyeOff, KeyRound, User as UserIcon } from 'lucide-react';
 import { UserContext } from '../context/user';
 import "../styles/Style.css";
 
-const url = "https://evat.ddns.net:443/api/auth/login";
+const url = 'https://evat.ddns.net:443/api/auth/login';
 
 function Signin() {
   const [email, setEmail] = useState('');
@@ -24,7 +24,7 @@ function Signin() {
       const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password })
       });
 
       //need to delete user data then reload it from api after sign in
@@ -77,7 +77,7 @@ function Signin() {
       <form onSubmit={handleSubmit} className="auth-form">
         <label className="label">Email</label>
         <div className="input-group">
-          <User className="icon" />
+          <UserIcon className="icon" />
           <input
             className="input"
             type="text"

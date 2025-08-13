@@ -11,7 +11,7 @@ import SmartFilter from '../components/SmartFilter';
 import { UserContext } from '../context/user';
 import { getChargers } from '../services/chargerService';
 
-// تنظیم آیکون پیش‌فرض Leaflet
+// Configure default Leaflet marker icons
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
@@ -19,7 +19,7 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png'
 });
 
-// کامپوننتی برای مانیتور کردن محدوده دید نقشه
+// Watches map bounds (bbox) and reports them upward
 function BoundsWatcher({ onChange }) {
   const map = useMapEvents({
     moveend() {
@@ -37,9 +37,8 @@ function BoundsWatcher({ onChange }) {
 }
 
 export default function Map() {
-  // State اصلی فیلترها
   const { user } = useContext(UserContext);
-  console.log("User context:", user);
+
   const [filters, setFilters] = useState({
     vehicleType: [],
     chargerType: [],
@@ -47,7 +46,7 @@ export default function Map() {
     priceRange: 100,
     showOnlyAvailable: false,
     darkMode: false,
-    showReliability: true // NEW: کنترل Reliability Overlay
+    showReliability: true
   });
 
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -56,10 +55,15 @@ export default function Map() {
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState('');
 
-  // دریافت داده‌ها از API
+  // Fetch chargers only when we actually have a token
   useEffect(() => {
     let mounted = true;
     let id;
+
+    if (!user?.token) {
+      setLoading(false);
+      return;
+    }
 
     const load = async () => {
       try {
@@ -73,79 +77,64 @@ export default function Map() {
       }
     };
 
+    setLoading(true);
     load();
     id = setInterval(load, 15000);
     return () => {
       mounted = false;
       clearInterval(id);
     };
-  }, [bbox, user]);
+  }, [bbox, user?.token]); // Important: depend on token, not whole user
 
-  // اعمال فیلترها روی داده‌های دریافتی
-const filteredStations = useMemo(() => {
-  return stations.filter(station => {
-    const {
-      connection_type,
-      power_output,
-      cost,
-      is_operational
-    } = station;
+  // Apply filters on stations
+  const filteredStations = useMemo(() => {
+    return stations.filter(station => {
+      const { connection_type, power_output, cost, is_operational } = station;
 
-    // Filter by Charger Type
-    if (
-      filters.chargerType.length > 0 &&
-      !filters.chargerType.includes(connection_type)
-    ) {
-      return false;
-    }
-
-    // Filter by Charging Speed (based on power_output)
-    if (filters.chargingSpeed.length > 0) {
-      const speed = parseFloat(power_output);
-      const speedFilter = filters.chargingSpeed.some(range => {
-        if (range === '<22kW') return speed < 22;
-        if (range === '22-50kW') return speed >= 22 && speed <= 50;
-        if (range === '50-150kW') return speed > 50 && speed <= 150;
-        if (range === '150kW+') return speed > 150;
+      // Charger Type
+      if (filters.chargerType.length > 0 && !filters.chargerType.includes(connection_type)) {
         return false;
-      });
-      if (!speedFilter) return false;
-    }
+      }
 
-    // Filter by Price Range
-    if (typeof cost === 'string') {
-      const match = cost.match(/\$([\d.]+)/);
-      const price = match ? parseFloat(match[1]) : 0;
-      if (price > filters.priceRange) return false;
-    }
+      // Charging Speed
+      if (filters.chargingSpeed.length > 0) {
+        const speed = parseFloat(power_output);
+        const ok = filters.chargingSpeed.some(range => {
+          if (range === '<22kW') return speed < 22;
+          if (range === '22-50kW') return speed >= 22 && speed <= 50;
+          if (range === '50-150kW') return speed > 50 && speed <= 150;
+          if (range === '150kW+') return speed > 150;
+          return false;
+        });
+        if (!ok) return false;
+      }
 
-    // Filter by Availability
-    if (filters.showOnlyAvailable && station.is_operational !== 'true') {
-      return false;
-    }
+      // Price Range
+      if (typeof cost === 'string') {
+        const match = cost.match(/\$([\d.]+)/);
+        const price = match ? parseFloat(match[1]) : 0;
+        if (price > filters.priceRange) return false;
+      }
 
-    return true;
-  });
-}, [stations, filters]);
+      // Availability
+      if (filters.showOnlyAvailable && station.is_operational !== 'true') {
+        return false;
+      }
 
+      return true;
+    });
+  }, [stations, filters]);
 
-  // Dark mode toggle
+  // Toggle dark mode
   useEffect(() => {
     document.body.classList.toggle('dark-mode', filters.darkMode);
   }, [filters.darkMode]);
-
-
-  //Log filtered stations to console
-  useEffect(() => {
-  console.log('Filtered stations:', filteredStations);
-}, [filteredStations]);
 
   return (
     <div className="dashboard-page" style={{ background: `url(${background})` }}>
       <NavBar />
       <div style={{ position: 'relative', height: '100vh', width: '100%' }}>
-        
-        {/* دکمه باز کردن SmartFilter */}
+        {/* Smart Filter trigger */}
         <button
           className="filter-toggle-button"
           onClick={() => setIsFilterOpen(true)}
@@ -154,7 +143,7 @@ const filteredStations = useMemo(() => {
           🔍 Smart Filters
         </button>
 
-        {/* پیام‌ها */}
+        {/* Status messages */}
         {loading && (
           <div style={{
             position: 'absolute',
@@ -182,7 +171,7 @@ const filteredStations = useMemo(() => {
           </div>
         )}
 
-        {/* نقشه */}
+        {/* Map */}
         <MapContainer center={[-37.8136, 144.9631]} zoom={13} style={{ height: '100%', width: '100%' }}>
           <TileLayer
             url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
@@ -193,7 +182,7 @@ const filteredStations = useMemo(() => {
           <LocateUser />
         </MapContainer>
 
-        {/* Smart Filter Modal */}
+        {/* Smart Filter modal */}
         <SmartFilter
           isOpen={isFilterOpen}
           onClose={() => setIsFilterOpen(false)}
