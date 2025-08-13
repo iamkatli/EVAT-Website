@@ -1,5 +1,8 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import '../styles/Style.css';
+import logo from '../assets/logo.png';
+import profileIcon from '../assets/profileIcon.png';
+import '../styles/NavBar.css';
 
 function NavBar() {
     const navigate = useNavigate();
@@ -10,24 +13,19 @@ function NavBar() {
 
     return (
         <nav className="nav-bar">
-            <button
-                className={`nav-button ${isActive('/map') ? 'active' : ''}`}
-                onClick={() => navigate('/map')}
-            >
-            🔍 Map
-            </button>
-            <button
-                className={`nav-button ${isActive('/favourite') ? 'active' : ''}`}
-                onClick={() => navigate('/favourite')}
-            >
-            ⭐ Favourite
-            </button>
-            <button
-                className={`nav-button ${isActive('/profile') ? 'active' : ''}`}
-                onClick={() => navigate('/profile')}
-            >
-            👤 Account
-            </button>
+            <div className="left-section">
+                <img src={logo} alt="Logo" className="logo" />
+                <span className="logo-text">Chameleon</span>
+            </div>
+            <div className="right-section">
+                <div className="nav-buttons">
+                    <button className={`nav-button ${isActive('/profile') ? 'active' : ''}`} onClick={() => navigate('/profile')}>My Dashboard</button>
+                    <button className={`nav-button ${isActive('/about') ? 'active' : ''}`} onClick={() => navigate('/about')}>About Me</button>
+                    <button className={`nav-button ${isActive('/map') ? 'active' : ''}`} onClick={() => navigate('/map')}>Map</button>
+                    <button className={`nav-button ${isActive('/help') ? 'active' : ''}`} onClick={() => navigate('/help')}>Help Center</button>
+                </div>
+                <img src={profileIcon} alt="Profile" className="profile-icon" />
+            </div>
         </nav>
     );
 }
