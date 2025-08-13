@@ -5,6 +5,17 @@ function About() {
         <div>
             <NavBar />
             <div>About me Page - To be completed</div>
+
+            <button
+            className="button signout-button"
+            onClick={handleSignOut}
+            >
+            🔓 Sign Out
+            </button>
+
+            <div className="help-center-link">
+                <a href="tel:+1800123456">📞 Contact Help Center</a>
+            </div>
         </div>
     )
   }

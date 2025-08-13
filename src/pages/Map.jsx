@@ -141,7 +141,7 @@ const filteredStations = useMemo(() => {
 }, [filteredStations]);
 
   return (
-    <div>
+    <div className="dashboard-page" style={{ background: `url(${background})` }}>
       <NavBar />
       <div style={{ position: 'relative', height: '100vh', width: '100%' }}>
         
