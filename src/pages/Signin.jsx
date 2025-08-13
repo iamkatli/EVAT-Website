@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 import { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, KeyRound, User as UserIcon } from 'lucide-react';
@@ -65,6 +66,61 @@ function Signin() {
       setError('An unexpected error occurred.');
     } finally {
       setSubmitted(false);
+=======
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Eye, EyeOff, KeyRound, User } from "lucide-react";
+import { apiRequest } from "../services/api";
+import "../styles/Style.css";
+
+function Signin() {
+  const [form, setForm] = useState({ email: "", password: "" }); //to manage form input values
+  const [showPassword, setShowPassword] = useState(false); //to toggle password visibility
+  const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
+
+  //Handle form input changes and reset any error messages
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+    setError("");
+  };
+
+  //Handle form submission for sign in
+  const handleSubmit = async (e) => {
+    e.preventDefault(); //prevent page reload on form submit
+    setSubmitted(true); //start loading
+
+    try {
+      //Send login request to backend
+      const data = await apiRequest("/auth/login", "POST", {
+        email: form.email,
+        password: form.password,
+      });
+
+      //Extract user and token data from response
+      const userData = {
+        ...data.data.user,
+        token: data.data.accessToken,
+      };
+
+      //Save tokens and user data to localStorage
+      localStorage.setItem("accessToken", data.data.accessToken);
+      localStorage.setItem("refreshToken", data.data.refreshToken);
+      localStorage.setItem("currentUser", JSON.stringify(userData));
+
+      setError("");
+
+      //Redirect to profile page after successful login
+      navigate("/profile");
+    } catch (err) {
+      //Log error for debugging
+      console.error("Login failed:", err);
+      //Output error message
+      setError(err.message || "Login failed");
+    } finally {
+      setSubmitted(false); // Reset loading state
+>>>>>>> Stashed changes
     }
   };
 
@@ -74,31 +130,63 @@ function Signin() {
       <img src="/chameleon.png" alt="Chameleon" className="logo-image" />
       <h1 className="logo-text">Chameleon</h1>
 
+<<<<<<< Updated upstream
       <form onSubmit={handleSubmit} className="auth-form">
         <label className="label">Email</label>
         <div className="input-group">
           <UserIcon className="icon" />
+=======
+      <div className="tab-row">
+        <span className="tab active">Sign in</span>
+        <span className="tab" onClick={() => navigate("/signup")}>
+          Create Account
+        </span>
+      </div>
+
+      <form onSubmit={handleSubmit} className="auth-form">
+        {/*Email*/}
+        <label className="label">Email</label>
+        <div className="input-group">
+          <User className="icon" />
+>>>>>>> Stashed changes
           <input
             className="input"
             type="text"
             name="email"
             placeholder="Enter your email"
+<<<<<<< Updated upstream
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+=======
+            value={form.email}
+            onChange={handleChange}
+>>>>>>> Stashed changes
             required
           />
         </div>
 
+<<<<<<< Updated upstream
+=======
+        {/*Password*/}
+>>>>>>> Stashed changes
         <label className="label">Password</label>
         <div className="input-group">
           <KeyRound className="icon" />
           <input
             className="input"
+<<<<<<< Updated upstream
             type={showPassword ? 'text' : 'password'}
             name="password"
             placeholder="Enter your password"
             value={password}
             onChange={e => setPassword(e.target.value)}
+=======
+            type={showPassword ? "text" : "password"}
+            name="password"
+            placeholder="Enter your password"
+            value={form.password}
+            onChange={handleChange}
+>>>>>>> Stashed changes
             required
           />
           <span
@@ -110,6 +198,7 @@ function Signin() {
           </span>
         </div>
 
+<<<<<<< Updated upstream
         <button type="submit" className="auth-button" disabled={submitted}>
           {submitted ? "Signing In..." : "SIGN IN"}
         </button>
@@ -123,6 +212,14 @@ function Signin() {
       </form>
 
       {error && <p className="error-message">❌ {error}</p>}
+=======
+        <button type="submit" className="button" disabled={submitted}>
+          {submitted ? "Signing In..." : "SIGN IN"}
+        </button>
+      </form>
+
+      {error && <p className="error-message">{error}</p>}
+>>>>>>> Stashed changes
     </div>
   );
 }

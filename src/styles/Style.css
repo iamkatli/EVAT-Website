@@ -21,6 +21,7 @@ body {
   z-index: -1;
 }
 
+<<<<<<< Updated upstream
 .logo-image {
   position: fixed;
   width: 151px;
@@ -57,6 +58,8 @@ body {
   z-index: 10;
 }
 
+=======
+>>>>>>> Stashed changes
 .tab-row {
   display: flex;
   gap: 2rem;

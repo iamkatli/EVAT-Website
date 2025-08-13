@@ -1,12 +1,19 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import NavBar from '../components/NavBar';
+<<<<<<< Updated upstream
+=======
+import { apiRequest } from "../services/api";
+import background from '../assets/background.jpg';
+import profileIcon from '../assets/profileIcon.png';
+>>>>>>> Stashed changes
 import profileImage from '../assets/profileImage.png';
 import '../styles/Profile.css';
 
 function Profile() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
+<<<<<<< Updated upstream
   const [activeTab, setActiveTab] = useState("dashboard");
 
   useEffect(() => {
@@ -23,6 +30,37 @@ function Profile() {
     navigate("/signin");
   };
 
+=======
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      const token = localStorage.getItem("accessToken");
+      if (!token) {
+        navigate("/signin");
+        return;
+      }
+
+      const mockUser = {
+        firstName: "Anne",
+        lastName: "Trinh",
+        email: "anne@email.com",
+        mobile: "0412345678"
+      };
+
+      setTimeout(() => {
+        setUser(mockUser);
+        setLoading(false);
+      }, 500);
+    };
+
+    fetchUserProfile();
+  }, [navigate]);
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>{error}</div>;
+>>>>>>> Stashed changes
   if (!user) return null;
 
   return (
@@ -32,6 +70,7 @@ function Profile() {
       <div className="dashboard-container">
         <div className="dashboard-left">
           <h2 className="dashboard-title">My Dashboard</h2>
+<<<<<<< Updated upstream
           <div className="dashboard-profile-image">
             <img src={profileImage} alt="Profile" />
           </div>
@@ -114,6 +153,20 @@ function Profile() {
               Back
             </button>
           )}
+=======
+          <img src={profileImage} alt="Profile" className="dashboard-profile-image" />
+        </div>
+
+        <div className="dashboard-center">
+          <button className="dashboard-btn">About Me</button>
+          <button className="dashboard-btn">My Car</button>
+          <button className="dashboard-btn">Payment</button>
+          <button className="dashboard-btn">History</button>
+        </div>
+
+        <div className="dashboard-right">
+          <button className="edit-button">Edit</button>
+>>>>>>> Stashed changes
         </div>
       </div>
     </div>

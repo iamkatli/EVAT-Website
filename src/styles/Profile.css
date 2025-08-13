@@ -1,14 +1,37 @@
 .background {
+<<<<<<< Updated upstream
     position: fixed;
     top: 166px;
     left: 0;
     width: 100vw;
     height: calc(100vh - 166px);
+=======
+    position: absolute;
+    top: 136px;
+    left: 0;
+    width: 100vw;
+    height: 900px;
+    z-index: -1;
+    pointer-events: none;
+    overflow: hidden;
+}
+  
+.background::before {
+    content: "";
+    position: absolute;
+    top: 136; left: 0; right: 0; bottom: 0;
+    width: 100vw;
+    height: 900px;
+    overflow: hidden;
+>>>>>>> Stashed changes
     background: url('../assets/background.jpg') no-repeat center center;
     background-size: cover;
     opacity: 0.5;
     z-index: -1;
+<<<<<<< Updated upstream
     pointer-events: none;
+=======
+>>>>>>> Stashed changes
 }
   
 .dashboard-page {
@@ -17,15 +40,23 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+<<<<<<< Updated upstream
     padding-top: 166px; /* space for NavBar */
 }
   
 .dashboard-container {
     position: fixed; /* since you have top/left specified */
+=======
+}
+  
+.dashboard-container {
+    position: absolute;
+>>>>>>> Stashed changes
     top: 166px;
     left: 327px;
     width: 992px;
     height: 725px;
+<<<<<<< Updated upstream
     background: rgba(246, 246, 246, 0.6); /* #F6F6F699 hex + opacity */
     opacity: 1;
     border-radius: 8px;
@@ -42,25 +73,50 @@
 .dashboard-left,
 .dashboard-center,
 .dashboard-right {
+=======
+    opacity: 1;
+    transform: rotate(0deg);
+  
+    display: flex;
+    background: #F6F6F699; /* semi-transparent light gray */
+    border-radius: 8px;
+    box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+    z-index: 1;
+}
+
+/* Left Section */
+.dashboard-left {
+>>>>>>> Stashed changes
     flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
+<<<<<<< Updated upstream
 }
   
 .dashboard-left {
+=======
+>>>>>>> Stashed changes
     padding-top: 2rem;
 }
   
 .dashboard-title {
     font-family: 'Jockey One', sans-serif;
     font-weight: 400;
+<<<<<<< Updated upstream
     font-size: 32px;
+=======
+    font-style: normal;
+    font-size: 32px;
+    line-height: 100%;
+    text-align: center;
+>>>>>>> Stashed changes
     margin-bottom: 1rem;
 }
   
 .dashboard-profile-image {
     width: 200px;
+<<<<<<< Updated upstream
     max-height: 243px;
     background-position: center;
     background-repeat: no-repeat;
@@ -73,11 +129,30 @@
     justify-content: center;
     gap: 1.25rem;
     align-items: center;
+=======
+    height: auto;
+    max-height: 243px;
+    object-fit: cover;
+}
+  
+/* Center Section */
+.dashboard-center {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 1.25rem;
+>>>>>>> Stashed changes
 }
   
 .dashboard-btn {
     background-color: #649D5F;
+<<<<<<< Updated upstream
     color: #333;
+=======
+    color: #333333;
+>>>>>>> Stashed changes
     border: none;
     padding: 0.75rem 2rem;
     border-radius: 25px;
@@ -92,6 +167,7 @@
     background-color: #4b8d47;
 }
   
+<<<<<<< Updated upstream
 .dashboard-right {
     justify-content: flex-end;
     padding-bottom: 2rem;
@@ -224,4 +300,28 @@
         font-size: 0.85rem;
         margin: 0.5rem auto;
     }
+=======
+/* Right Section */
+.dashboard-right {
+    flex: 1;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 2rem;
+}
+  
+.edit-button {
+    background-color: white;
+    border: 1px solid #ccc;
+    padding: 0.5rem 1.5rem;
+    border-radius: 20px;
+    font-size: 1rem;
+    cursor: pointer;
+    width: 150px;
+    transition: background 0.3s ease;
+}
+  
+.edit-button:hover {
+    background-color: #f0f0f0;
+>>>>>>> Stashed changes
 }
