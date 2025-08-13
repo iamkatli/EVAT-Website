@@ -131,7 +131,7 @@ export default function Map() {
   }, [filters.darkMode]);
 
   return (
-    <div>
+    <div className="dashboard-page" style={{ background: `url(${background})` }}>
       <NavBar />
       <div style={{ position: 'relative', height: '100vh', width: '100%' }}>
         {/* Smart Filter trigger */}
