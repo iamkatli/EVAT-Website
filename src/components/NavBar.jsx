@@ -1,31 +1,35 @@
 import { useNavigate, useLocation } from 'react-router-dom';
-import logo from '../assets/logo.png';
-import profileIcon from '../assets/profileIcon.png';
-import '../styles/NavBar.css';
+import '../styles/Style.css';
 
 function NavBar() {
-  const navigate = useNavigate();
-  const location = useLocation();
+    const navigate = useNavigate();
+    const location = useLocation();
 
-  const isActive = (path) => location.pathname === path;
+    // Highlight active button
+    const isActive = (path) => location.pathname === path;
 
-  return (
-    <nav className="nav-bar">
-        <div className="left-section">
-            <img src={logo} alt="Logo" className="logo" />
-            <span className="logo-text">Chameleon</span>
-        </div>
-        <div className="right-section">
-            <div className="nav-buttons">
-                <button className={`nav-button ${isActive('/profile') ? 'active' : ''}`} onClick={() => navigate('/profile')}>My Dashboard</button>
-                <button className={`nav-button ${isActive('/about') ? 'active' : ''}`} onClick={() => navigate('/about')}>About Me</button>
-                <button className={`nav-button ${isActive('/map') ? 'active' : ''}`} onClick={() => navigate('/map')}>Map</button>
-                <button className={`nav-button ${isActive('/help') ? 'active' : ''}`} onClick={() => navigate('/help')}>Help Center</button>
-            </div>
-            <img src={profileIcon} alt="Profile" className="profile-icon" />
-        </div>
-    </nav>
-  );
+    return (
+        <nav className="nav-bar">
+            <button
+                className={`nav-button ${isActive('/map') ? 'active' : ''}`}
+                onClick={() => navigate('/map')}
+            >
+            🔍 Map
+            </button>
+            <button
+                className={`nav-button ${isActive('/favourite') ? 'active' : ''}`}
+                onClick={() => navigate('/favourite')}
+            >
+            ⭐ Favourite
+            </button>
+            <button
+                className={`nav-button ${isActive('/profile') ? 'active' : ''}`}
+                onClick={() => navigate('/profile')}
+            >
+            👤 Account
+            </button>
+        </nav>
+    );
 }
 
 export default NavBar;
