@@ -4,6 +4,7 @@ import Signin from "./pages/Signin";
 import Profile from './pages/Profile';
 import About from "./pages/About";
 import Map from './pages/Map';
+import Feedback from './pages/Feedback';
 import { UserProvider } from './context/user';
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/map" element={<Map />} />
           <Route path="/about" element={<About />} />
+          <Route path="/feedback" element={<Feedback />} />
           {/* Catch-all Route */}
           <Route path="*" element={<div>404 Page Not Found</div>} />
         </Routes>
