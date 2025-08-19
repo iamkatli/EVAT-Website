@@ -22,7 +22,7 @@ function NavBar() {
                     <button className={`nav-button ${isActive('/profile') ? 'active' : ''}`} onClick={() => navigate('/profile')}>My Dashboard</button>
                     <button className={`nav-button ${isActive('/about') ? 'active' : ''}`} onClick={() => navigate('/about')}>About Me</button>
                     <button className={`nav-button ${isActive('/map') ? 'active' : ''}`} onClick={() => navigate('/map')}>Map</button>
-                    <button className={`nav-button ${isActive('/help') ? 'active' : ''}`} onClick={() => navigate('/help')}>Help Center</button>
+                    <button className={`nav-button ${isActive('/feedback') ? 'active' : ''}`} onClick={() => navigate('/feedback')}>Feedback</button>
                 </div>
                 <img src={profileIcon} alt="Profile" className="profile-icon" />
             </div>
