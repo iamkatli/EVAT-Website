@@ -1,5 +1,5 @@
 export async function getChargers(user, params = {}) {
-  const baseUrl = 'http://localhost:8080/api/chargers';
+  const baseUrl = 'https://localhost:8080/api/chargers';
   const url = new URL(baseUrl);
 
   if (params.bbox) {

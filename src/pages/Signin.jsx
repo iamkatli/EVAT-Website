@@ -4,7 +4,7 @@ import { Eye, EyeOff, KeyRound, User as UserIcon } from 'lucide-react';
 import { UserContext } from '../context/user';
 import '../styles/Style.css';
 
-const url = 'https://evat.ddns.net:443/api/auth/login';
+const url = 'http://localhost:8080/api/auth/login';
 
 function Signin() {
   const [email, setEmail] = useState('');
