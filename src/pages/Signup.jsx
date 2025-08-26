@@ -4,7 +4,7 @@ import { Eye, EyeOff, KeyRound, User } from 'lucide-react';
 import { UserContext } from '../context/user';
 import '../styles/Style.css';
 
-const url = "https://evat.ddns.net:443/api/auth/register";
+const url = "http://localhost:8080/api/auth/register";
 
 function Signup() {
   const [form, setForm] = useState({
