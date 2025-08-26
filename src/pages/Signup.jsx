@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, KeyRound, User, Phone } from 'lucide-react';
 import '../styles/Style.css';
 
-const url = "https://evat.ddns.net:443/api/auth/register";
+const url = "http://localhost:8080/api/auth/register";
 
 function Signup() {
   const [form, setForm] = useState({

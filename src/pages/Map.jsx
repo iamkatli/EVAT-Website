@@ -11,6 +11,12 @@ import SmartFilter from '../components/SmartFilter';
 import { UserContext } from '../context/user';
 import { getChargers } from '../services/chargerService';
 
+
+// styles
+import '../styles/SmartFilter.css';
+import '../styles/LocateUserButton.css';
+import '../styles/DarkModeToggle.css';
+
 // Configure default Leaflet marker icons
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -55,7 +61,22 @@ export default function Map() {
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState('');
 
-  // Fetch chargers only when we actually have a token
+  // local UI state for the floating dark-mode button icon
+  const [isDark, setIsDark] = useState(() =>
+    typeof document !== 'undefined' && document.body.classList.contains('dark-mode')
+  );
+
+  // keep body class in sync when SmartFilter toggles filters.darkMode
+  useEffect(() => {
+    const desired = Boolean(filters.darkMode);
+    const hasClass = document.body.classList.contains('dark-mode');
+    if (desired !== hasClass) {
+      document.body.classList.toggle('dark-mode', desired);
+    }
+    setIsDark(document.body.classList.contains('dark-mode'));
+  }, [filters.darkMode]);
+
+  // Fetch chargers only when token available and bbox changes
   useEffect(() => {
     let mounted = true;
     let id;
@@ -84,19 +105,17 @@ export default function Map() {
       mounted = false;
       clearInterval(id);
     };
-  }, [bbox, user?.token]); // Important: depend on token, not whole user
+  }, [bbox, user?.token]);
 
   // Apply filters on stations
   const filteredStations = useMemo(() => {
     return stations.filter(station => {
-      const { connection_type, power_output, cost, is_operational } = station;
+      const { connection_type, power_output, cost } = station;
 
-      // Charger Type
       if (filters.chargerType.length > 0 && !filters.chargerType.includes(connection_type)) {
         return false;
       }
 
-      // Charging Speed
       if (filters.chargingSpeed.length > 0) {
         const speed = parseFloat(power_output);
         const ok = filters.chargingSpeed.some(range => {
@@ -109,14 +128,12 @@ export default function Map() {
         if (!ok) return false;
       }
 
-      // Price Range
       if (typeof cost === 'string') {
         const match = cost.match(/\$([\d.]+)/);
         const price = match ? parseFloat(match[1]) : 0;
         if (price > filters.priceRange) return false;
       }
 
-      // Availability
       if (filters.showOnlyAvailable && station.is_operational !== 'true') {
         return false;
       }
@@ -125,25 +142,17 @@ export default function Map() {
     });
   }, [stations, filters]);
 
-  // Toggle dark mode
-  useEffect(() => {
-    document.body.classList.toggle('dark-mode', filters.darkMode);
-  }, [filters.darkMode]);
-
   return (
     <div>
       <NavBar />
       <div style={{ position: 'relative', height: '100vh', width: '100%' }}>
-        {/* Smart Filter trigger */}
         <button
           className="filter-toggle-button"
           onClick={() => setIsFilterOpen(true)}
-          style={{ position: 'absolute', top: 12, right: 12, zIndex: 1000 }}
         >
           🔍 Smart Filters
         </button>
 
-        {/* Status messages */}
         {loading && (
           <div style={{
             position: 'absolute',
@@ -171,18 +180,30 @@ export default function Map() {
           </div>
         )}
 
-        {/* Map */}
         <MapContainer center={[-37.8136, 144.9631]} zoom={13} style={{ height: '100%', width: '100%' }}>
           <TileLayer
-            url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-            attribution='&copy; OpenStreetMap contributors'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            attribution="&copy; OpenStreetMap contributors"
           />
           <BoundsWatcher onChange={setBbox} />
           <ClusterMarkers showReliability={filters.showReliability} stations={filteredStations} />
           <LocateUser />
         </MapContainer>
 
-        {/* Smart Filter modal */}
+        <button
+          className="dark-mode-floating"
+          aria-label="Toggle dark mode"
+          onClick={() => {
+            document.body.classList.toggle('dark-mode');
+            const nowDark = document.body.classList.contains('dark-mode');
+            setIsDark(nowDark);
+            setFilters(prev => ({ ...prev, darkMode: nowDark }));
+          }}
+          title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+        >
+          {isDark ? '🌙' : '☀️'}
+        </button>
+
         <SmartFilter
           isOpen={isFilterOpen}
           onClose={() => setIsFilterOpen(false)}
