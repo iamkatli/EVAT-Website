@@ -288,7 +288,7 @@ input:checked + .toggle-slider:before {
 /* Responsive */
 @media (max-width: 768px) {
   .filter-toggle-button {
-    top: 130px; /* push below mobile navbar */
+    top: 110px; /* push below mobile navbar */
   }
 }
 

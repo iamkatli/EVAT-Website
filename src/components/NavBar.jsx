@@ -19,7 +19,7 @@ function NavBar() {
             </div>
             <div className="right-section">
                 <div className="nav-buttons">
-                    <button className={`nav-button ${isActive('/profile') ? 'active' : ''}`} onClick={() => navigate('/profile')}>My Dashboard</button>
+                    <button className={`nav-button ${isActive('profile') ? 'active' : ''}`} onClick={() => navigate('/profile', { state: { resetDashboard: true } })}>My Dashboard</button>
                     <button className={`nav-button ${isActive('/map') ? 'active' : ''}`} onClick={() => navigate('/map')}>Map</button>
                     <button className={`nav-button ${isActive('/favourites') ? 'active' : ''}`} onClick={() => navigate('/favourites')}>Favourites</button>
                     <button className={`nav-button ${isActive('/feedback') ? 'active' : ''}`} onClick={() => navigate('/feedback')}>Feedback</button>

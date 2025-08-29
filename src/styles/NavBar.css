@@ -4,7 +4,7 @@
     align-items: center;
     width: 100%;
     background-color: #AAC597;
-    padding: 1rem 1rem;
+    padding: 0.5rem 0.5rem;
     top: 0;
     left: 0;
     right: 0;
@@ -18,11 +18,12 @@
     align-items: center;
     gap: 0.25rem;
     min-width: 0;
+    margin-left: 1rem;
 }
 
 .logo {
-    width: 35px;
-    height: 35px;
+    width: 50px;
+    height: 50px;
     flex-shrink: 0;
 }
 
@@ -48,14 +49,14 @@
 
 .nav-buttons {
     display: flex;
-    gap: 1rem;
+    gap: 1.5rem;
     flex-wrap: nowrap;
 }
 
 .nav-button {
     background: none;
     border: none;
-    font-size: 0.9rem;
+    font-size: 1rem;
     cursor: pointer;
     color: #1a1a1a;
     transition: font-weight 0.3s, color 0.3s;
@@ -70,8 +71,8 @@
 }
 
 .profile-icon {
-    width: 40px;
-    height: 40px;
+    width: 45px;
+    height: 45px;
     border-radius: 50%;
     background-image: url('../assets/profileIcon.png');
     background-size: cover;
@@ -84,11 +85,11 @@
 @media (max-width: 1024px) {
     .left-section {
         gap: 0.2rem;
-        margin-left: 0;
+        margin-left: 1rem;
     }
 
     .nav-button {
-        font-size: 0.8rem;
+        font-size: 0.9rem;
     }
 
     .profile-icon {
@@ -99,47 +100,49 @@
 
 @media (max-width: 768px) {
     .nav-bar {
-        flex-direction: column;
-        align-items: center;
+        flex-direction: row;
+        align-items: flex-start;
         padding: 0.5rem 1rem;
     }
 
     .left-section {
-        gap: 0.2rem;
-        margin-left: 0;
-        margin-bottom: 0.25rem;
-    }
-
-    .logo {
-        width: 28px;
-        height: 28px;
-    }
-
-    .logo-text {
-        font-size: 0.9rem;
+        margin-left: 0.5rem;
+        margin-bottom: 0;
     }
 
     .right-section {
         flex-direction: column;
-        gap: 0.25rem;
-        width: 100%;
-        align-items: center;
+        gap: 0.5rem;
+        align-items: flex-end;
+        margin-left: auto;
+        margin-right: 1rem;
     }
 
     .nav-buttons {
         flex-direction: column;
         gap: 0.25rem;
-        width: 100%;
-        align-items: center;
+        width: auto;
+        align-items: flex-end;
+        margin-right: 1rem;
     }
 
     .nav-button {
-        width: 100%;
+        width: auto;
         max-width: 160px;
-        text-align: center;
+        text-align: right;
+        margin-right: 0;
     }
 
     .profile-icon {
         display: none;
+    }
+
+    .logo-text {
+        display: none;
+    }
+
+    .logo {
+        width: 70px;
+        height: 70px;
     }
 }
