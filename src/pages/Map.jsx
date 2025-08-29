@@ -11,11 +11,9 @@ import SmartFilter from '../components/SmartFilter';
 import { UserContext } from '../context/user';
 import { getChargers } from '../services/chargerService';
 
-
 // styles
 import '../styles/SmartFilter.css';
-import '../styles/LocateUserButton.css';
-import '../styles/DarkModeToggle.css';
+import '../styles/Map.css';
 
 // Configure default Leaflet marker icons
 delete L.Icon.Default.prototype._getIconUrl;
