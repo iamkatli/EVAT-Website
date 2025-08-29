@@ -1,0 +1,95 @@
+.sidebar-container {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 300px;
+  max-width: 90%;
+  height: 100%;
+  background-color: #fdfdfd;
+  border-left: 1px solid #ccc;
+  box-shadow: -2px 0 6px rgba(0, 0, 0, 0.1);
+  padding: 16px;
+  overflow-y: auto;
+  z-index: 1000;
+  transition: transform 0.3s ease;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.sidebar-container h3 {
+  margin-top: 0;
+  font-size: 1.1rem;
+  color: #333;
+}
+
+.sidebar-section {
+  margin-bottom: 24px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 16px;
+}
+
+.sidebar-section:last-child {
+  border-bottom: none;
+}
+
+.sidebar-section ul {
+  list-style-type: none;
+  padding-left: 0;
+  margin-top: 8px;
+}
+
+.sidebar-section li {
+  margin-bottom: 6px;
+  color: #444;
+  font-size: 0.95rem;
+}
+
+textarea {
+  width: 100%;
+  min-height: 60px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 8px;
+  font-size: 0.95rem;
+  resize: vertical;
+}
+
+input[type="number"] {
+  width: 100%;
+  margin-top: 8px;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  box-sizing: border-box;
+}
+
+button {
+  margin-top: 10px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 14px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+button:hover {
+  background-color: #45a049;
+}
+
+.close-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: none;
+  border: none;
+  font-size: 1.3rem;
+  color: #666;
+  cursor: pointer;
+}
+
+.close-btn:hover {
+  color: #000;
+}

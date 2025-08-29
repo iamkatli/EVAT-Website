@@ -10,7 +10,7 @@ import ClusterMarkers from '../components/ClusterMarkers';
 import SmartFilter from '../components/SmartFilter';
 import { UserContext } from '../context/user';
 import { getChargers } from '../services/chargerService';
-
+import ChargerSideBar from '../components/ChargerSideBar';
 // styles
 import '../styles/SmartFilter.css';
 import '../styles/Map.css';
@@ -58,6 +58,7 @@ export default function Map() {
   const [bbox, setBbox] = useState(null);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState('');
+  const [selectedStation, setSelectedStation] = useState(null);
 
   // local UI state for the floating dark-mode button icon
   const [isDark, setIsDark] = useState(() =>
@@ -184,8 +185,12 @@ export default function Map() {
             attribution="&copy; OpenStreetMap contributors"
           />
           <BoundsWatcher onChange={setBbox} />
-          <ClusterMarkers showReliability={filters.showReliability} stations={filteredStations} />
-          <LocateUser />
+          <ClusterMarkers
+            showReliability={filters.showReliability}
+            stations={filteredStations}
+            onSelectStation={(st) => setSelectedStation(st)}
+          />
+          <LocateUser/>
         </MapContainer>
 
         <button
@@ -209,6 +214,10 @@ export default function Map() {
           filters={filters}
           setFilters={setFilters}
           filteredCount={filteredStations.length}
+        />
+        <ChargerSideBar
+          station={selectedStation}
+          onClose={() => setSelectedStation(null)}
         />
       </div>
     </div>
