@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import NavBar from '../components/NavBar';
 import Background from "../components/Background";
 import profileImage from '../assets/profileImage.png';
@@ -7,6 +7,9 @@ import '../styles/Profile.css';
 
 function Profile() {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Local state management
   const [user, setUser] = useState(null);
   const [activeTab, setActiveTab] = useState("dashboard");
   const [editingCar, setEditingCar] = useState(false);
@@ -14,6 +17,17 @@ function Profile() {
   const [editingAbout, setEditingAbout] = useState(false);
   const [history, setHistory] = useState([]);
 
+  // Reset tab to "dashboard" if user navigates back with reset flag
+  useEffect(() => {
+    if (location.pathname === "/profile") {
+      if (location.state?.resetDashboard) {
+        setActiveTab("dashboard");
+        navigate(location.pathname, { replace: true }); // Clear flag
+      }
+    }
+  }, [location, navigate]);
+
+  // Load user info from localStorage, redirect to signin if missing
   useEffect(() => {
     const storedUser = localStorage.getItem('currentUser');
     if (storedUser) {
@@ -23,13 +37,14 @@ function Profile() {
     }
   }, [navigate]);
 
-  // Reset edit states whenever tab changes
+  // Reset editing states when switching tabs
   useEffect(() => {
     if (activeTab !== "payment") setEditingPayment(false);
     if (activeTab !== "car") setEditingCar(false);
     if (activeTab !== "about") setEditingAbout(false);
   }, [activeTab]);
 
+  // Load booking history when switching to history tab
   useEffect(() => {
     if (activeTab === "history") {
       const mockBookings = [
@@ -103,11 +118,13 @@ function Profile() {
     }
   }, [activeTab]);
 
+  // Handle sign out (clear user + redirect)
   const handleSignOut = () => {
     localStorage.removeItem('currentUser');
     navigate("/signin");
   };
 
+  // Save updated About Me details
   const handleSaveAbout = async () => {
     try {
       const token = localStorage.getItem("authToken");
@@ -140,11 +157,12 @@ function Profile() {
     }
   };
 
+  // Save updated Car details
   const handleSaveCar = async () => {
     try {
       const token = localStorage.getItem("authToken");
   
-      // Update or create vehicle
+      // Create vehicle object for update/creation
       const vehiclePayload = {
         id: user.car?.id,
         make: user.car?.make,
@@ -152,6 +170,7 @@ function Profile() {
         year: Number(user.car?.year),
       };
   
+      // Update if car already exists, otherwise create new
       const vehicleResponse = await fetch(
         `http://localhost:8080/api/vehicle${user.car?.id ? `/${user.car.id}` : ''}`,
         {
@@ -171,7 +190,7 @@ function Profile() {
   
       if (!vehicleId) throw new Error("Vehicle ID not returned from server");
   
-      // Link vehicle to user
+      // Link updated vehicle to user profile
       const linkResponse = await fetch(
         "http://localhost:8080/api/profile/vehicle-model",
         {
@@ -189,7 +208,7 @@ function Profile() {
       const linkData = await linkResponse.json();
       console.log("Vehicle linked to user:", linkData);
   
-      // Update state
+      // Update local state with new car info
       setUser({ ...user, car: { ...vehiclePayload, id: vehicleId } });
       setEditingCar(false);
   
@@ -200,6 +219,7 @@ function Profile() {
     }
   };
 
+  // Save updated Payment details
   const handleSavePayment = async () => {
     try {
       const token = localStorage.getItem("authToken");
@@ -237,6 +257,7 @@ function Profile() {
     }
   };
 
+  // To prevent rendering until user is loaded
   if (!user) return null;
 
   return (
