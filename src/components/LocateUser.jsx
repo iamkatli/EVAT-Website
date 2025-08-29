@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import { useMap, Marker, Popup, Circle } from "react-leaflet";
 import L from "leaflet";
 import markerIconUrl from "../assets/marker-icon-red.png";
-import "../styles/LocateUserButton.css";
+import "../styles/Map.css";
 
 const markerIcon = new L.Icon({
   iconUrl: markerIconUrl,
