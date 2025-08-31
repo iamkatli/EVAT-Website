@@ -222,22 +222,6 @@ const SmartFilter = ({ isOpen, onClose, onApplyFilters, filters, setFilters, fil
           </div>
         </div>
 
-        {/* Dark Mode Toggle Section */}
-        <div className="filter-section">
-          <h3>Dark Mode</h3>
-          <div className="toggle-container">
-            <span className="toggle-label">enable dark mode</span>
-            <label className="toggle-switch">
-              <input
-                type="checkbox"
-                checked={localFilters.darkMode}
-                onChange={handleDarkModeToggle}
-              />
-              <span className="toggle-slider"></span>
-            </label>
-          </div>
-        </div>
-
         {/* Reliability Overlay Toggle Section (NEW) */}
         <div className="filter-section">
           <h3>Reliability Overlay</h3>
