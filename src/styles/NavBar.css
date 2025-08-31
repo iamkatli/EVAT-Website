@@ -2,53 +2,57 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    width: 100vw;
+    width: 100%;
     background-color: #AAC597;
-    padding: 1rem 1rem;
+    padding: 0.5rem 0.5rem;
     top: 0;
     left: 0;
     right: 0;
     z-index: 1000;
     flex-wrap: nowrap;
+    position: fixed;
 }
-  
-/* LEFT: logo + text */
+
 .left-section {
     display: flex;
-    margin-left: 2rem;
-    flex-direction: column;
     align-items: center;
-    gap: 0.5rem;
-    width: auto;
+    gap: 0.25rem;
+    min-width: 0;
+    margin-left: 1rem;
 }
-  
+
 .logo {
-    width: 151px;
-    height: 151px;
+    width: 50px;
+    height: 50px;
+    flex-shrink: 0;
 }
-  
+
 .logo-text {
     font-family: 'Jockey One', sans-serif;
     font-weight: 400;
-    font-size: 32px;
+    font-size: 20px;
     color: #000;
     margin: 0;
+    line-height: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
-  
-/* RIGHT: nav buttons + profile icon */
+
 .right-section {
     display: flex;
-    margin-right: 2rem;
-    align-items: flex-end;
-    gap: 1rem;
+    margin-right: 1.5rem;
+    align-items: center;
+    gap: 0.5rem;
+    flex-shrink: 0;
 }
-  
+
 .nav-buttons {
     display: flex;
     gap: 1.5rem;
     flex-wrap: nowrap;
 }
-  
+
 .nav-button {
     background: none;
     border: none;
@@ -56,97 +60,89 @@
     cursor: pointer;
     color: #1a1a1a;
     transition: font-weight 0.3s, color 0.3s;
+    padding: 0;
+    white-space: nowrap;
 }
-  
+
 .nav-button:hover,
 .nav-button.active {
     font-weight: bold;
     color: #3d7e3a;
 }
-  
+
 .profile-icon {
-    width: 83px;
-    height: 83px;
+    width: 45px;
+    height: 45px;
     border-radius: 50%;
     background-image: url('../assets/profileIcon.png');
     background-size: cover;
     background-position: center;
+    background-repeat: no-repeat;
     cursor: pointer;
+    flex-shrink: 0;
 }
-  
-/* Tablet (≤1024px) */
+
 @media (max-width: 1024px) {
     .left-section {
-        gap: 0.25rem;
-        margin-left: 0;
+        gap: 0.2rem;
+        margin-left: 1rem;
     }
 
-    .logo {
-      width: 60px;
-      height: 60px;
-    }
-  
-    .logo-text {
-      font-size: 1.3rem;
-    }
-  
     .nav-button {
-      font-size: 0.9rem;
+        font-size: 0.9rem;
     }
-  
+
     .profile-icon {
-      width: 50px;
-      height: 50px;
+        width: 35px;
+        height: 35px;
     }
 }
-  
-/* Mobile (≤768px) */
+
 @media (max-width: 768px) {
-    .left-section {
-        gap: 0.2rem;
-        margin-left: 0;
-        margin-bottom: 0.5rem;
-    }
-
-    .logo {
-        width: 50px;
-        height: 50px;
-    }
-
-    .logo-text {
-        font-size: 1.1rem;
-    }
-
     .nav-bar {
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
+        flex-direction: row;
+        align-items: flex-start;
         padding: 0.5rem 1rem;
     }
-  
+
+    .left-section {
+        margin-left: 0.5rem;
+        margin-bottom: 0;
+    }
+
     .right-section {
         flex-direction: column;
         gap: 0.5rem;
-        width: 100%;
-        align-items: center;
+        align-items: flex-end;
+        margin-left: auto;
+        margin-right: 1rem;
     }
-  
+
     .nav-buttons {
         flex-direction: column;
-        gap: 0.5rem;
-        width: 100%;
-        align-items: center;
+        gap: 0.25rem;
+        width: auto;
+        align-items: flex-end;
+        margin-right: 1rem;
     }
-  
+
     .nav-button {
-        width: 100%;
-        max-width: 200px;
-        text-align: center;
+        width: auto;
+        max-width: 160px;
+        text-align: right;
+        margin-right: 0;
     }
-  
+
     .profile-icon {
-        margin-top: 0.5rem;
-        width: 40px;
-        height: 40px;
+        display: none;
+    }
+
+    .logo-text {
+        display: none;
+    }
+
+    .logo {
+        width: 70px;
+        height: 70px;
     }
 }
