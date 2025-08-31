@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
+import { UserContext } from '../context/user';
+import { getChargerTypes } from "../services/chargerService";
 import '../styles/SmartFilter.css';
 
 /**
  * SmartFilter Component
  * 
  * A comprehensive filtering modal for EV charging stations that allows users to:
- * - Filter by vehicle type (Sedan, Hatchback, SUV)
  * - Filter by charger type (CCS, CHAdeMO, Type 1, Type 2)
  * - Filter by charging speed (<22kW, 22-50kW, 50-150kW, 150kW+)
  * - Set price range with a slider ($0-$100)
@@ -21,30 +22,34 @@ import '../styles/SmartFilter.css';
  * @param {number} filteredCount - Number of stations matching current filters
  */
 const SmartFilter = ({ isOpen, onClose, onApplyFilters, filters, setFilters, filteredCount }) => {
+  const { user } = useContext(UserContext); // grab the logged-in user
   // Local state for filter changes - allows users to modify filters without applying immediately
   const [localFilters, setLocalFilters] = useState(filters);
+  const [chargerTypes, setChargerTypes] = useState([]); // Dynamic charger types
+
+  // Available filter options - these could be moved to a config file in a larger app
+  const chargingSpeeds = ['<22kW', '22-50kW', '50-150kW', '150kW+'];
 
   // Update local filters when props change (sync with parent component)
   React.useEffect(() => {
     setLocalFilters(filters);
   }, [filters]);
 
-  // Available filter options - these could be moved to a config file in a larger app
-  // const vehicleTypes = ['Sedan', 'Hatchback', 'SUV'];
-  const chargerTypes = ['CCS (Type 2)', 'CHAdeMO', 'Type 1 (J1772)', 'Type 2 (Socket Only)'];
-  const chargingSpeeds = ['<22kW', '22-50kW', '50-150kW', '150kW+'];
+  // Fetch charger types from API whenever filter opens
+  useEffect(() => {
+    if (!user) return // wait for user to be loaded
+    async function fetchChargerTypes() {
+      try {
+        const type = await getChargerTypes(user);
+        setChargerTypes(type); // store in state
+      } catch (err) {
+        console.error("Failed to load charger types", err);
+      }
+    }
+  fetchChargerTypes();
+  }, [user]);
 
-  // /**
-  //  * Toggle vehicle type selection
-  //  */
-  // const handleVehicleTypeToggle = (type) => {
-  //   setLocalFilters(prev => ({
-  //     ...prev,
-  //     vehicleType: prev.vehicleType.includes(type)
-  //       ? prev.vehicleType.filter(t => t !== type)
-  //       : [...prev.vehicleType, type]
-  //   }));
-  // };
+  //Type 2 tethered connector doesnt work because each station has a trailing space in the connector_types that we have filtered out in chargerservice.js
 
   /**
    * Toggle charger type selection
@@ -117,7 +122,6 @@ const SmartFilter = ({ isOpen, onClose, onApplyFilters, filters, setFilters, fil
    */
   const handleReset = () => {
     const resetFilters = {
-      vehicleType: [],
       chargerType: [],
       chargingSpeed: [],
       priceRange: 100,
@@ -149,22 +153,6 @@ const SmartFilter = ({ isOpen, onClose, onApplyFilters, filters, setFilters, fil
             ✕
           </button>
         </div>
-
-        {/* Vehicle Type Filter Section */}
-        {/* <div className="filter-section">
-          <h3>Vehicle Type</h3>
-          <div className="filter-options">
-            {vehicleTypes.map(type => (
-              <button
-                key={type}
-                className={`filter-button ${localFilters.vehicleType.includes(type) ? 'selected' : ''}`}
-                onClick={() => handleVehicleTypeToggle(type)}
-              >
-                {type}
-              </button>
-            ))}
-          </div>
-        </div> */}
 
         {/* Charger Type Filter Section */}
         <div className="filter-section">

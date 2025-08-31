@@ -35,3 +35,20 @@ export async function getChargers(user, params = {}) {
   const data = await res.json();
   return data.data;
 }
+
+export async function getChargerTypes(user, params = {}) {
+  try {
+    const chargers = await getChargers(user, params);
+    // Grab unique types from chargers array
+  const uniqueTypes = [
+    ...new Set(
+      chargers
+        .flatMap(charger => charger.connection_type.split(',').map(t => t.trim()))
+    )
+  ];
+  return uniqueTypes;
+  } catch (err) {
+    console.error("Error fetching charger types:", err);
+    return [];
+  }
+}
