@@ -133,6 +133,7 @@
 /* Price Range Slider */
 .price-slider-container {
   margin-top: 1rem;
+  position: relative;
 }
 
 .price-slider {
@@ -143,6 +144,8 @@
   outline: none;
   -webkit-appearance: none;
   margin-bottom: 0.5rem;
+  position: absolute;
+  pointer-events: none;
 }
 
 .price-slider::-webkit-slider-thumb {
@@ -153,6 +156,9 @@
   border-radius: 50%;
   background: #2A5F3B;
   cursor: pointer;
+  pointer-events: all;
+  position: relative;
+  z-index: 1;
 }
 
 .price-slider::-moz-range-thumb {
@@ -169,6 +175,7 @@
   justify-content: space-between;
   font-size: 0.9rem;
   color: #6c757d;
+  padding-top: 1rem;
 }
 
 .price-range-display {
