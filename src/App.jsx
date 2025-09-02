@@ -7,6 +7,7 @@ import Feedback from './pages/Feedback';
 import Favourite from './pages/Favourite';
 import { UserProvider } from './context/user';
 import { FavouritesProvider } from "./context/FavouritesContext";
+import Cost from "./pages/cost";
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
             <Route path="/map" element={<Map />} />
             <Route path="/feedback" element={<Feedback />} />
             <Route path="/favourites" element={<Favourite />} />
+            <Route path="/cost" element={<Cost />} />
             {/* Catch-all Route */}
             <Route path="*" element={<div>404 Page Not Found</div>} />
           </Routes>
