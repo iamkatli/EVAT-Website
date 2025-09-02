@@ -5,7 +5,7 @@ import 'leaflet.markercluster';
 import { iconForReliability } from '../utils/chargerIcons';
 import { FavouritesContext } from '../context/FavouritesContext';
 
-function ClusterMarkers({ showReliability, stations, onSelectStation }) {
+function ClusterMarkers({ showReliability, stations, onSelectStation, isDark }) {
   const map = useMap();
   const { favourites } = useContext(FavouritesContext);
 
@@ -17,7 +17,7 @@ function ClusterMarkers({ showReliability, stations, onSelectStation }) {
       const lng = parseFloat(st.longitude);
       if (isNaN(lat) || isNaN(lng)) return;
 
-      const icon = iconForReliability(showReliability, st.reliability) || new L.Icon.Default();
+      const icon = iconForReliability(showReliability, st.reliability, isDark) || new L.Icon.Default();
 
       const marker = L.marker([lat, lng], { icon });
 

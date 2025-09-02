@@ -193,7 +193,9 @@ export default function Map() {
             showReliability={filters.showReliability}
             stations={filteredStations}
             onSelectStation={(st) => setSelectedStation(st)}
+            isDark={filters.darkMode}
           />
+
           <LocateUser />
         </MapContainer>
 
