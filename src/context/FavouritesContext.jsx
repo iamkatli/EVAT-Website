@@ -7,7 +7,8 @@ export function FavouritesProvider({ children }) {
 
   const getToken = () => {
     try {
-       return JSON.parse(localStorage.getItem("currentUser"))?.accessToken;    } catch {
+       return JSON.parse(localStorage.getItem("currentUser"))?.accessToken;
+    } catch {
       return null;
     }
   };
