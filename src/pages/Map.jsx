@@ -25,7 +25,9 @@ L.Icon.Default.mergeOptions({
 
 // Utility function to parse cost
 function parseCost(costStr) {
-  if (!costStr || typeof costStr !== "string"); // return null if not parsable
+  if (!costStr || typeof costStr !== "string") {
+    return null; // return null if not parsable
+  }
 
   const lower = costStr.toLowerCase().trim();
 
@@ -34,7 +36,7 @@ function parseCost(costStr) {
 
   // Handle cents (e.g., 55c)
   const centsMatch = lower.match(/([\d.]+)\s*(c|cent|cents)\b/);
-  if (centsMatch) return parseInt((centsMatch[1]), 10);
+  if (centsMatch) return parseInt(centsMatch[1], 10);
 
   // Handle $ amounts with optional per-unit info (e.g., $0.2/kwh, $0.60 per kwh)
   const dollarMatch = lower.match(/\$([\d.]+)/);
