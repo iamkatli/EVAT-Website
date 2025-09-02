@@ -9,7 +9,7 @@ import LocateUser from '../components/LocateUser';
 import ClusterMarkers from '../components/ClusterMarkers';
 import SmartFilter from '../components/SmartFilter';
 import { UserContext } from '../context/user';
-import { getChargers } from '../services/chargerService';
+import { getChargers, getConnectorTypes, getOperatorTypes } from '../services/chargerService';
 
 // styles
 import '../styles/SmartFilter.css';
@@ -22,6 +22,74 @@ L.Icon.Default.mergeOptions({
   iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
   shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png'
 });
+
+// Utility function to parse cost
+function parseCost(costStr) {
+  if (!costStr || typeof costStr !== "string"); // return null if not parsable
+
+  const lower = costStr.toLowerCase().trim();
+
+  // Handle free
+  if (lower.includes("free")) return 0;
+
+  // Handle cents (e.g., 55c)
+  const centsMatch = lower.match(/([\d.]+)\s*(c|cent|cents)\b/);
+  if (centsMatch) return parseInt((centsMatch[1]), 10);
+
+  // Handle $ amounts with optional per-unit info (e.g., $0.2/kwh, $0.60 per kwh)
+  const dollarMatch = lower.match(/\$([\d.]+)/);
+  if (dollarMatch) {
+    const dollars = parseFloat(dollarMatch[1]);
+    return Math.round(dollars * 100); // always return integer cents
+  }
+
+  // Fallback: parse any number in string
+  const numMatch = lower.match(/([\d.]+)/);
+  if (numMatch) return parseInt(numMatch[1], 10);
+
+  // If nothing matches, return null
+  return null;
+}
+
+
+//Define the same normalisation logic you used when fetching operator types in charger service
+function normaliseOperatorName(name) {
+  if (!name) return "Unknown";
+
+    const lower = name.toLowerCase().trim();
+
+    // Tesla group
+    if (lower.includes("tesla")) {
+      return "Tesla";
+    }
+
+    // Evie group
+    if (lower.includes("evie")) {
+      return "Evie";
+    }
+
+    // Pulse group
+    if (lower.includes("pulse")) {
+      return "BP Pulse";
+    }
+
+    // Pulse group
+    if (lower.includes("ampcharge")) {
+      return "Ampol Ampcharge";
+    }
+
+    // NRMA group
+    if (lower.includes("nrma")) {
+      return "NRMA";
+    }    
+
+    // Unknown group
+    if (lower.includes("unknown")) {
+      return "Unknown";
+    }
+
+  return name;
+}
 
 // Watches map bounds (bbox) and reports them upward
 function BoundsWatcher({ onChange }) {
@@ -43,11 +111,14 @@ function BoundsWatcher({ onChange }) {
 export default function Map() {
   const { user } = useContext(UserContext);
 
+  const priceMin = 0;
+  const priceMax = 100;
+
   const [filters, setFilters] = useState({
-    vehicleType: [],
     chargerType: [],
     chargingSpeed: [],
-    priceRange: 100,
+    priceRange: [priceMin, priceMax],
+    operatorType: [],
     showOnlyAvailable: false,
     darkMode: false,
     showReliability: true
@@ -58,6 +129,8 @@ export default function Map() {
   const [bbox, setBbox] = useState(null);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState('');
+  const [connectorTypes, setConnectorTypes] = useState([]);
+  const [operatorTypes, setOperatorTypes] = useState([]);
 
   // local UI state for the floating dark-mode button icon
   const [isDark, setIsDark] = useState(() =>
@@ -105,33 +178,84 @@ export default function Map() {
     };
   }, [bbox, user?.token]);
 
+  // fetching connector and operator types
+  useEffect(() => {
+    if (!user) return;
+
+    async function fetchConnectorTypes() {
+      try {
+        const types = await getConnectorTypes(user);
+        setConnectorTypes(types);
+      } catch (err) {
+        console.error("Failed to load connector types", err);
+      }
+    }
+
+    async function fetchOperatorTypes() {
+      try {
+        const types = await getOperatorTypes(user);
+        setOperatorTypes(types);
+      } catch (err) {
+        console.error("Failed to load operator types", err);
+      }
+    }
+
+    fetchConnectorTypes();
+    fetchOperatorTypes();
+  }, [user]);
+  //Type 2 tethered connector doesnt work because each station has a trailing space in the connector_types that we have filtered out in chargerservice.js
+
   // Apply filters on stations
   const filteredStations = useMemo(() => {
     return stations.filter(station => {
-      const { connection_type, power_output, cost } = station;
-
+      const { connection_type, power_output, cost, operator } = station;
+      // Charger type filter
       if (filters.chargerType.length > 0 && !filters.chargerType.includes(connection_type)) {
         return false;
       }
 
+      //Speed filter
       if (filters.chargingSpeed.length > 0) {
-        const speed = parseFloat(power_output);
+        const speed = Number(power_output); // parse as integer
         const ok = filters.chargingSpeed.some(range => {
-          if (range === '<22kW') return speed < 22;
-          if (range === '22-50kW') return speed >= 22 && speed <= 50;
-          if (range === '50-150kW') return speed > 50 && speed <= 150;
-          if (range === '150kW+') return speed > 150;
-          return false;
+          switch (range) {
+            case '<7kW':
+              return speed < 7;
+            case '7-22kW':
+              return speed >= 7 && speed <= 22;
+            case '22-50kW':
+              return speed > 22 && speed <= 50;
+            case '50-150kW':
+              return speed > 50 && speed <= 150;
+            case '150kW-250kW':
+              return speed > 150 && speed <= 250;
+            case '250kW+':
+              return speed > 250;
+            default:
+              return false;
+          }
         });
         if (!ok) return false;
       }
 
-      if (typeof cost === 'string') {
-        const match = cost.match(/\$([\d.]+)/);
-        const price = match ? parseFloat(match[1]) : 0;
-        if (price > filters.priceRange) return false;
+      //Price filter      
+      const price = parseCost(cost);
+      // if (price === null) return false; // this remove all unknown costs
+      if (price < filters.priceRange[0] || price > filters.priceRange[1]) return false;
+
+      //Operator filter
+      if (filters.operatorType.length > 0) {
+        const normalisedOperator = normaliseOperatorName(operator);
+        // Determine if operator is considered "Other"
+        const bigGroups = operatorTypes.filter(op => op !== "Other");
+        const opForFilter = bigGroups.includes(normalisedOperator) ? normalisedOperator : "Other";
+
+        if (!filters.operatorType.includes(opForFilter)) {
+          return false;
+        }
       }
 
+      //Available filter
       if (filters.showOnlyAvailable && station.is_operational !== 'true') {
         return false;
       }
@@ -209,6 +333,10 @@ export default function Map() {
           filters={filters}
           setFilters={setFilters}
           filteredCount={filteredStations.length}
+          priceMin={priceMin}
+          priceMax={priceMax}
+          connectorTypes={connectorTypes}
+          operatorTypes={operatorTypes}
         />
       </div>
     </div>

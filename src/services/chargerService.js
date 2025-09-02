@@ -36,7 +36,7 @@ export async function getChargers(user, params = {}) {
   return data.data;
 }
 
-export async function getChargerTypes(user, params = {}) {
+export async function getConnectorTypes(user, params = {}) {
   try {
     const chargers = await getChargers(user, params);
     // Grab unique types from chargers array
@@ -49,6 +49,75 @@ export async function getChargerTypes(user, params = {}) {
   return uniqueTypes;
   } catch (err) {
     console.error("Error fetching charger types:", err);
+    return [];
+  }
+}
+
+export async function getOperatorTypes(user, params = {}) {
+  try {
+    const chargers = await getChargers(user, params);
+
+    // Normalisation rules
+    const normaliseOperator = (op) => {
+      if (!op) return "Unknown";
+
+      const lower = op.toLowerCase().trim();
+
+      // Tesla group
+      if (lower.includes("tesla")) {
+        return "Tesla";
+      }
+
+      // Evie group
+      if (lower.includes("evie")) {
+        return "Evie";
+      }
+
+      // Pulse group
+      if (lower.includes("pulse")) {
+        return "BP Pulse";
+      }
+
+      // Pulse group
+      if (lower.includes("ampcharge")) {
+        return "Ampol Ampcharge";
+      }
+
+      // NRMA group
+      if (lower.includes("nrma")) {
+        return "NRMA";
+      }  
+
+      // Unknown group
+      if (lower.includes("unknown")) {
+        return "Unknown";
+      }
+      return op.trim();
+    };
+
+    // Count operators after normalisation
+    const counts = chargers.reduce((acc, charger) => {
+      // Use the entire operator string, or default to "Unknown"
+      const op = charger.operator ? normaliseOperator(charger.operator) : "Unknown";
+
+      acc[op] = (acc[op] || 0) + 1;
+      return acc;
+    }, {});
+
+    // Separate big groups vs "Other"
+    const threshold = 30; // adjust this
+    const bigGroups = Object.entries(counts)
+      .filter(([_, count]) => count >= threshold)
+      .map(([op]) => op);
+
+    const uniqueTypes = [
+      ...bigGroups,
+      "Other"
+    ];
+    
+    return uniqueTypes;
+  } catch (err) {
+    console.error("Error fetching operator types:", err);
     return [];
   }
 }

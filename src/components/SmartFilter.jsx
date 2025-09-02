@@ -1,6 +1,4 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { UserContext } from '../context/user';
-import { getChargerTypes } from "../services/chargerService";
 import '../styles/SmartFilter.css';
 
 /**
@@ -9,10 +7,10 @@ import '../styles/SmartFilter.css';
  * A comprehensive filtering modal for EV charging stations that allows users to:
  * - Filter by charger type (CCS, CHAdeMO, Type 1, Type 2)
  * - Filter by charging speed (<22kW, 22-50kW, 50-150kW, 150kW+)
- * - Set price range with a slider ($0-$100)
+ * - Set price range with a slider (0-100)
  * - Toggle availability filter (show only available stations)
  * - Toggle dark mode for the entire application
- * - Toggle reliability overlay (NEW)
+ * - Toggle reliability overlay
  * 
  * @param {boolean} isOpen - Controls modal visibility
  * @param {function} onClose - Callback to close the modal
@@ -21,35 +19,27 @@ import '../styles/SmartFilter.css';
  * @param {function} setFilters - Function to update filters in parent
  * @param {number} filteredCount - Number of stations matching current filters
  */
-const SmartFilter = ({ isOpen, onClose, onApplyFilters, filters, setFilters, filteredCount }) => {
-  const { user } = useContext(UserContext); // grab the logged-in user
+const SmartFilter = ({
+  isOpen,
+  onClose,
+  onApplyFilters,
+  filters,
+  setFilters,
+  filteredCount,
+  priceMin,
+  priceMax,
+  connectorTypes,
+  operatorTypes
+}) => {
   // Local state for filter changes - allows users to modify filters without applying immediately
   const [localFilters, setLocalFilters] = useState(filters);
-  const [chargerTypes, setChargerTypes] = useState([]); // Dynamic charger types
-
   // Available filter options - these could be moved to a config file in a larger app
-  const chargingSpeeds = ['<22kW', '22-50kW', '50-150kW', '150kW+'];
+  const chargingSpeeds = [ '<7kW', '7-22kW', '22-50kW', '50-150kW', '150kW-250kW', '250kW+'];
 
   // Update local filters when props change (sync with parent component)
   React.useEffect(() => {
     setLocalFilters(filters);
   }, [filters]);
-
-  // Fetch charger types from API whenever filter opens
-  useEffect(() => {
-    if (!user) return // wait for user to be loaded
-    async function fetchChargerTypes() {
-      try {
-        const type = await getChargerTypes(user);
-        setChargerTypes(type); // store in state
-      } catch (err) {
-        console.error("Failed to load charger types", err);
-      }
-    }
-  fetchChargerTypes();
-  }, [user]);
-
-  //Type 2 tethered connector doesnt work because each station has a trailing space in the connector_types that we have filtered out in chargerservice.js
 
   /**
    * Toggle charger type selection
@@ -78,13 +68,33 @@ const SmartFilter = ({ isOpen, onClose, onApplyFilters, filters, setFilters, fil
   /**
    * Update price range filter
    */
-  const handlePriceRangeChange = (event) => {
-    const value = parseInt(event.target.value);
-    setLocalFilters(prev => ({
+  const handleMinChange = (e) => {
+    const newMin = parseInt(e.target.value);
+    setLocalFilters((prev) => ({
       ...prev,
-      priceRange: value
+      priceRange: [Math.min(newMin, prev.priceRange[1]), prev.priceRange[1]], // keep min ≤ max
     }));
   };
+
+  const handleMaxChange = (e) => {
+    const newMax = parseInt(e.target.value);
+    setLocalFilters((prev) => ({
+      ...prev,
+      priceRange: [prev.priceRange[0], Math.max(newMax, prev.priceRange[0])], // keep max ≥ min
+    }));
+  };
+
+  /**
+   * Toggle charger operator selection
+   */
+  const handleOperatorToggle = (type) => {
+  setLocalFilters(prev => ({
+    ...prev,
+    operatorType: prev.operatorType.includes(type)
+      ? prev.operatorType.filter(o => o !== type)
+      : [...prev.operatorType, type]
+  }));
+};
 
   /**
    * Toggle availability filter
@@ -97,17 +107,7 @@ const SmartFilter = ({ isOpen, onClose, onApplyFilters, filters, setFilters, fil
   };
 
   /**
-   * Toggle dark mode
-   */
-  const handleDarkModeToggle = () => {
-    setLocalFilters(prev => ({
-      ...prev,
-      darkMode: !prev.darkMode
-    }));
-  };
-
-  /**
-   * Toggle reliability overlay (NEW)
+   * Toggle reliability overlay
    * Enables/disables the reliability score overlay on the map
    */
   const handleReliabilityToggle = () => {
@@ -124,10 +124,11 @@ const SmartFilter = ({ isOpen, onClose, onApplyFilters, filters, setFilters, fil
     const resetFilters = {
       chargerType: [],
       chargingSpeed: [],
-      priceRange: 100,
+      priceRange: [priceMin, priceMax],
+      operatorType: [],
       showOnlyAvailable: false,
       darkMode: false,
-      showReliability: true // NEW: reset reliability toggle to default (enabled)
+      showReliability: true
     };
     setLocalFilters(resetFilters);
   };
@@ -158,7 +159,7 @@ const SmartFilter = ({ isOpen, onClose, onApplyFilters, filters, setFilters, fil
         <div className="filter-section">
           <h3>Charger Type</h3>
           <div className="filter-options">
-            {chargerTypes.map(type => (
+            {connectorTypes.map(type => (
               <button
                 key={type}
                 className={`filter-button ${localFilters.chargerType.includes(type) ? 'selected' : ''}`}
@@ -188,21 +189,50 @@ const SmartFilter = ({ isOpen, onClose, onApplyFilters, filters, setFilters, fil
 
         {/* Price Range Filter Section */}
         <div className="filter-section">
-          <h3>Price Range</h3>
-          <div className="price-slider-container">
-            <input
-              type="range"
-              min="0"
-              max="100"
-              value={localFilters.priceRange}
-              onChange={handlePriceRangeChange}
-              className="price-slider"
-            />
-            <div className="price-labels">
-              <span>$0</span>
-              <span className="price-range-display">$0-${localFilters.priceRange}</span>
-              <span>${localFilters.priceRange}</span>
+          <h3>Price Range (¢ per kWh)</h3>
+            <div className="price-slider-container">
+              {/* two range inputs */}
+              <input
+                type="range"
+                min={priceMin}
+                max={priceMax}
+                value={localFilters.priceRange[0]}
+                onChange={handleMinChange}
+                className="price-slider"
+              />
+              <input
+                type="range"
+                min={priceMin}
+                max={priceMax}
+                value={localFilters.priceRange[1]}
+                onChange={handleMaxChange}
+                className="price-slider"
+              />
+
+              {/* labels */}
+              <div className="price-labels">
+                <span>{priceMin}</span>
+                <span className="price-range-display">
+                  {localFilters.priceRange[0]} - {localFilters.priceRange[1]}
+                </span>
+                <span>{priceMax}</span>
+              </div>
             </div>
+        </div>
+
+        {/* Charger Operator Filter Section */}
+        <div className="filter-section">
+          <h3>Charger Operator</h3>
+          <div className="filter-options">
+            {operatorTypes.map(type => (
+              <button
+                key={type}
+                className={`filter-button ${localFilters.operatorType.includes(type) ? 'selected' : ''}`}
+                onClick={() => handleOperatorToggle(type)}
+              >
+                {type}
+              </button>
+            ))}
           </div>
         </div>
 
@@ -222,7 +252,7 @@ const SmartFilter = ({ isOpen, onClose, onApplyFilters, filters, setFilters, fil
           </div>
         </div>
 
-        {/* Reliability Overlay Toggle Section (NEW) */}
+        {/* Reliability Overlay Toggle Section */}
         <div className="filter-section">
           <h3>Reliability Overlay</h3>
           <div className="toggle-container">
