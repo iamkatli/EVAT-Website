@@ -11,6 +11,8 @@ import SmartFilter from '../components/SmartFilter';
 import { UserContext } from '../context/user';
 import { getChargers } from '../services/chargerService';
 import ChargerSideBar from '../components/ChargerSideBar';
+import { FavouritesContext } from '../context/FavouritesContext';
+
 // styles
 import '../styles/SmartFilter.css';
 import '../styles/Map.css';
@@ -59,6 +61,8 @@ export default function Map() {
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState('');
   const [selectedStation, setSelectedStation] = useState(null);
+  const { favourites, toggleFavourite } = useContext(FavouritesContext);
+
 
   // local UI state for the floating dark-mode button icon
   const [isDark, setIsDark] = useState(() =>
@@ -190,7 +194,7 @@ export default function Map() {
             stations={filteredStations}
             onSelectStation={(st) => setSelectedStation(st)}
           />
-          <LocateUser/>
+          <LocateUser />
         </MapContainer>
 
         <button
@@ -218,6 +222,8 @@ export default function Map() {
         <ChargerSideBar
           station={selectedStation}
           onClose={() => setSelectedStation(null)}
+          favourites={favourites}
+          toggleFavourite={toggleFavourite}
         />
       </div>
     </div>

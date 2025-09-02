@@ -93,3 +93,25 @@ button:hover {
 .close-btn:hover {
   color: #000;
 }
+
+.favourite-btn {
+  background-color: #28a745; 
+  color: white; 
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.rating-stars {
+  margin: 8px 0;
+}
+.rating-stars span {
+  transition: color 0.2s;
+}
+
+
