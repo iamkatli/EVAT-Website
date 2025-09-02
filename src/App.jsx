@@ -8,6 +8,9 @@ import Favourite from './pages/Favourite';
 import { UserProvider } from './context/user';
 import { FavouritesProvider } from "./context/FavouritesContext";
 
+
+import BookingTool from './pages/BookingTool';
+
 function App() {
   return (
     <UserProvider>
@@ -21,6 +24,10 @@ function App() {
             <Route path="/map" element={<Map />} />
             <Route path="/feedback" element={<Feedback />} />
             <Route path="/favourites" element={<Favourite />} />
+
+
+            <Route path="/bookingtool" element={<BookingTool />} />
+
             {/* Catch-all Route */}
             <Route path="*" element={<div>404 Page Not Found</div>} />
           </Routes>

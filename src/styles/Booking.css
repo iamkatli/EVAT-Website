@@ -1,0 +1,84 @@
+/* Full-page background */
+.dashboard-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: url("../assets/background.jpg") no-repeat center center fixed;
+  background-size: cover;
+}
+
+/* Booking panel with frosted overlay */
+.booking-panel {
+  margin: 100px auto;
+  max-width: 1000px;
+  width: 90%;
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 12px;
+  padding: 20px;
+  backdrop-filter: blur(6px);
+}
+
+/* Title */
+.booking-title {
+  font-size: 1.8rem;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+/* Tabs */
+.tabbar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.tab {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  background: #e6eedf;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tab.active {
+  background: #aac597;
+  color: #0f1b0e;
+}
+
+/* Date & time layout */
+.dt-row {
+  display: flex;
+  gap: 20px;
+}
+
+.dt-summary {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.summary-box {
+  background: #aac597;
+  color: #fff;
+  padding: 10px;
+  border-radius: 6px;
+  font-weight: bold;
+}
+
+.next-btn {
+  background: #86a973;
+  color: #fff;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.next-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
