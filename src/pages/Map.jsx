@@ -9,6 +9,8 @@ import LocateUser from '../components/LocateUser';
 import ClusterMarkers from '../components/ClusterMarkers';
 import SmartFilter from '../components/SmartFilter';
 import { UserContext } from '../context/user';
+import ChargerSideBar from '../components/ChargerSideBar';
+import { FavouritesContext } from '../context/FavouritesContext';
 import { getChargers, getConnectorTypes, getOperatorTypes } from '../services/chargerService';
 
 // styles
@@ -58,37 +60,37 @@ function parseCost(costStr) {
 function normaliseOperatorName(name) {
   if (!name) return "Unknown";
 
-    const lower = name.toLowerCase().trim();
+  const lower = name.toLowerCase().trim();
 
-    // Tesla group
-    if (lower.includes("tesla")) {
-      return "Tesla";
-    }
+  // Tesla group
+  if (lower.includes("tesla")) {
+    return "Tesla";
+  }
 
-    // Evie group
-    if (lower.includes("evie")) {
-      return "Evie";
-    }
+  // Evie group
+  if (lower.includes("evie")) {
+    return "Evie";
+  }
 
-    // Pulse group
-    if (lower.includes("pulse")) {
-      return "BP Pulse";
-    }
+  // Pulse group
+  if (lower.includes("pulse")) {
+    return "BP Pulse";
+  }
 
-    // Pulse group
-    if (lower.includes("ampcharge")) {
-      return "Ampol Ampcharge";
-    }
+  // Pulse group
+  if (lower.includes("ampcharge")) {
+    return "Ampol Ampcharge";
+  }
 
-    // NRMA group
-    if (lower.includes("nrma")) {
-      return "NRMA";
-    }    
+  // NRMA group
+  if (lower.includes("nrma")) {
+    return "NRMA";
+  }
 
-    // Unknown group
-    if (lower.includes("unknown")) {
-      return "Unknown";
-    }
+  // Unknown group
+  if (lower.includes("unknown")) {
+    return "Unknown";
+  }
 
   return name;
 }
@@ -130,6 +132,8 @@ export default function Map() {
   const [bbox, setBbox] = useState(null);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState('');
+  const [selectedStation, setSelectedStation] = useState(null);
+  const { favourites, toggleFavourite } = useContext(FavouritesContext);
   const [connectorTypes, setConnectorTypes] = useState([]);
   const [operatorTypes, setOperatorTypes] = useState([]);
 
@@ -309,7 +313,14 @@ export default function Map() {
             attribution="&copy; OpenStreetMap contributors"
           />
           <BoundsWatcher onChange={setBbox} />
-          <ClusterMarkers showReliability={filters.showReliability} stations={filteredStations} />
+          <ClusterMarkers
+            showReliability={filters.showReliability}
+            stations={filteredStations}
+            onSelectStation={(st) => setSelectedStation(st)}
+            isDark={isDark}
+          />
+
+
           <LocateUser />
         </MapContainer>
 
@@ -333,6 +344,12 @@ export default function Map() {
           priceMax={priceMax}
           connectorTypes={connectorTypes}
           operatorTypes={operatorTypes}
+        />
+        <ChargerSideBar
+          station={selectedStation}
+          onClose={() => setSelectedStation(null)}
+          favourites={favourites}
+          toggleFavourite={toggleFavourite}
         />
       </div>
     </div>
