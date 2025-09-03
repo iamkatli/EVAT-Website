@@ -122,7 +122,6 @@ export default function Map() {
     priceRange: [priceMin, priceMax],
     operatorType: [],
     showOnlyAvailable: false,
-    darkMode: false,
     showReliability: true
   });
 
@@ -135,19 +134,19 @@ export default function Map() {
   const [operatorTypes, setOperatorTypes] = useState([]);
 
   // local UI state for the floating dark-mode button icon
-  const [isDark, setIsDark] = useState(() =>
-    typeof document !== 'undefined' && document.body.classList.contains('dark-mode')
-  );
+  const [isDark, setIsDark] = useState(false);
 
-  // keep body class in sync when SmartFilter toggles filters.darkMode
+  // toggle dark mode only when inside the Map page
   useEffect(() => {
-    const desired = Boolean(filters.darkMode);
-    const hasClass = document.body.classList.contains('dark-mode');
-    if (desired !== hasClass) {
-      document.body.classList.toggle('dark-mode', desired);
+    if (isDark) {
+      document.body.classList.add("dark-mode");
+    } else {
+      document.body.classList.remove("dark-mode");
     }
-    setIsDark(document.body.classList.contains('dark-mode'));
-  }, [filters.darkMode]);
+    return () => {
+      document.body.classList.remove("dark-mode");
+    };
+  }, [isDark]);
 
   // Fetch chargers only when token available and bbox changes
   useEffect(() => {
@@ -267,7 +266,7 @@ export default function Map() {
   }, [stations, filters]);
 
   return (
-    <div>
+    <div className={`map-page ${isDark ? "dark" : ""}`}>
       <NavBar />
       <div style={{ position: 'relative', height: '100vh', width: '100%' }}>
         <button
@@ -317,12 +316,7 @@ export default function Map() {
         <button
           className="dark-mode-floating"
           aria-label="Toggle dark mode"
-          onClick={() => {
-            document.body.classList.toggle('dark-mode');
-            const nowDark = document.body.classList.contains('dark-mode');
-            setIsDark(nowDark);
-            setFilters(prev => ({ ...prev, darkMode: nowDark }));
-          }}
+          onClick={() => setIsDark(prev => !prev)}
           title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
         >
           {isDark ? '🌙' : '☀️'}
