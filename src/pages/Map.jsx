@@ -9,7 +9,6 @@ import LocateUser from '../components/LocateUser';
 import ClusterMarkers from '../components/ClusterMarkers';
 import SmartFilter from '../components/SmartFilter';
 import { UserContext } from '../context/user';
-import { getChargers } from '../services/chargerService';
 import ChargerSideBar from '../components/ChargerSideBar';
 import { FavouritesContext } from '../context/FavouritesContext';
 import { getChargers, getConnectorTypes, getOperatorTypes } from '../services/chargerService';
@@ -61,37 +60,37 @@ function parseCost(costStr) {
 function normaliseOperatorName(name) {
   if (!name) return "Unknown";
 
-    const lower = name.toLowerCase().trim();
+  const lower = name.toLowerCase().trim();
 
-    // Tesla group
-    if (lower.includes("tesla")) {
-      return "Tesla";
-    }
+  // Tesla group
+  if (lower.includes("tesla")) {
+    return "Tesla";
+  }
 
-    // Evie group
-    if (lower.includes("evie")) {
-      return "Evie";
-    }
+  // Evie group
+  if (lower.includes("evie")) {
+    return "Evie";
+  }
 
-    // Pulse group
-    if (lower.includes("pulse")) {
-      return "BP Pulse";
-    }
+  // Pulse group
+  if (lower.includes("pulse")) {
+    return "BP Pulse";
+  }
 
-    // Pulse group
-    if (lower.includes("ampcharge")) {
-      return "Ampol Ampcharge";
-    }
+  // Pulse group
+  if (lower.includes("ampcharge")) {
+    return "Ampol Ampcharge";
+  }
 
-    // NRMA group
-    if (lower.includes("nrma")) {
-      return "NRMA";
-    }    
+  // NRMA group
+  if (lower.includes("nrma")) {
+    return "NRMA";
+  }
 
-    // Unknown group
-    if (lower.includes("unknown")) {
-      return "Unknown";
-    }
+  // Unknown group
+  if (lower.includes("unknown")) {
+    return "Unknown";
+  }
 
   return name;
 }
@@ -135,7 +134,6 @@ export default function Map() {
   const [err, setErr] = useState('');
   const [selectedStation, setSelectedStation] = useState(null);
   const { favourites, toggleFavourite } = useContext(FavouritesContext);
-
   const [connectorTypes, setConnectorTypes] = useState([]);
   const [operatorTypes, setOperatorTypes] = useState([]);
 
@@ -319,8 +317,9 @@ export default function Map() {
             showReliability={filters.showReliability}
             stations={filteredStations}
             onSelectStation={(st) => setSelectedStation(st)}
-            isDark={filters.darkMode}
+            isDark={isDark}
           />
+
 
           <LocateUser />
         </MapContainer>
