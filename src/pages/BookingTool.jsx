@@ -27,11 +27,11 @@ export default function BookingTool() {
       try {
         setUser(JSON.parse(u));
       } catch {
-        setUser({ fullName: "Guest", email: "guest@example.com" });
+        setUser({ firstName: "Guest", lastName: "", email: "guest@example.com" });
         setIsGuest(true);
       }
     } else {
-      setUser({ fullName: "Guest", email: "guest@example.com" });
+      setUser({ firstName: "Guest", lastName: "", email: "guest@example.com" });
       setIsGuest(true);
     }
   }, []);
