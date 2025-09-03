@@ -212,49 +212,6 @@ body {
   font-weight: bold;
 }
 
-/* Dark Mode Styles */
-body.dark-mode {
-  background-color: #1a1a1a;
-  color: #ffffff;
-}
-
-body.dark-mode nav {
-  background-color: #2d2d2d;
-  border-bottom: 1px solid #444;
-}
-
-body.dark-mode nav button {
-  color: #ccc;
-}
-
-body.dark-mode nav button:hover {
-  color: #4CAF50;
-}
-
-body.dark-mode nav button.active,
-body.dark-mode nav button[style*="font-weight: bold"] {
-  color: #4CAF50;
-}
-
-/* Dark mode for map tiles */
-body.dark-mode .leaflet-tile-pane {
-  filter: invert(90%) hue-rotate(180deg);
-}
-
-/* Dark mode for popups */
-body.dark-mode .leaflet-popup-content-wrapper {
-  background-color: #2d2d2d;
-  color: #ffffff;
-}
-
-body.dark-mode .leaflet-popup-content h3 {
-  color: #4CAF50;
-}
-
-body.dark-mode .leaflet-popup-content strong {
-  color: #4CAF50;
-}
-
 /* Tablet (≤1024px) */
 @media (max-width: 1024px) {
   .dashboard-container {

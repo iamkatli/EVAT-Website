@@ -27,15 +27,57 @@ function Profile() {
     }
   }, [location, navigate]);
 
-  // Load user info from localStorage, redirect to signin if missing
+  const storedUser = JSON.parse(localStorage.getItem('currentUser'));
+  const token = storedUser?.token;
+
   useEffect(() => {
-    const storedUser = localStorage.getItem('currentUser');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    } else {
+    if (!token) {
       navigate('/signin');
+      return;
     }
-  }, [navigate]);
+  
+    const fetchUserProfile = async () => {
+      try {
+        const res = await fetch("http://localhost:8080/api/auth/profile", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+  
+        const text = await res.text();
+        console.log("Raw API response:", text);
+  
+        let json;
+        try {
+          json = JSON.parse(text);
+        } catch (err) {
+          console.error("Invalid JSON:", err);
+          return;
+        }
+  
+        if (!res.ok) throw new Error("Failed to fetch user profile");
+  
+        console.log("Parsed profile JSON:", json);
+        console.log("User mobile from API:", json.data.mobile);
+  
+        setUser(prev => ({
+          ...prev,
+          id: json.data.id,
+          firstName: json.data.firstName || "",
+          lastName: json.data.lastName || "",
+          email: json.data.email || "",
+          mobile: json.data.mobile || "",
+        }));
+      } catch (err) {
+        console.error("Profile fetch error:", err);
+        navigate('/signin');
+      }
+    };
+  
+    fetchUserProfile();
+  }, [navigate, token]);
 
   // Reset editing states when switching tabs
   useEffect(() => {
@@ -127,8 +169,6 @@ function Profile() {
   // Save updated About Me details
   const handleSaveAbout = async () => {
     try {
-      const token = localStorage.getItem("authToken");
-  
       const payload = {
         firstName: user.firstName,
         lastName: user.lastName,
@@ -160,8 +200,8 @@ function Profile() {
   // Save updated Car details
   const handleSaveCar = async () => {
     try {
-      const token = localStorage.getItem("authToken");
-  
+      const token = user?.token;
+
       // Create vehicle object for update/creation
       const vehiclePayload = {
         id: user.car?.id,
@@ -222,12 +262,12 @@ function Profile() {
   // Save updated Payment details
   const handleSavePayment = async () => {
     try {
-      const token = localStorage.getItem("authToken");
-  
+      const token = user?.token;
+
       // Send updated card info to backend
       const payload = {
         cardNumber: user.cardNumber,
-        billingAddress: user.billingaddress,
+        billingAddress: user.billingAddress,
         expiryDate: user.expiryDate,
         cvv: user.cvv,
       };
@@ -308,7 +348,7 @@ function Profile() {
                   user.lastName
                 )}
               </p>
-              <p>Email: {user.email}</p>
+              <p>Email: {user.email || "N/A"}</p>
               <p>
                 Phone:{" "}
                 {editingAbout ? (
