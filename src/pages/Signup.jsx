@@ -31,15 +31,13 @@ function Signup() {
     setErrorMessage('');
     setSubmitted(true);
 
-    //Get fullname from first and last name
-    const fullName = `${form.firstName} ${form.lastName}`.trim();
-
     try {
       const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          fullName,
+          firstName: form.firstName,
+          lastName: form.lastName,
           email: form.email,
           password: form.password,
           mobile: form.mobile,
@@ -50,7 +48,7 @@ function Signup() {
 
       if (response.ok) {
 
-        alert(`✅ Sign Up successful: ${data.message}, welcome ${fullName}`);
+        alert(`✅ Sign Up successful: ${data.message}, welcome ${form.firstName}`);
         navigate('/signin');
       } else {
         setErrorMessage(data.message || "Sign up failed");

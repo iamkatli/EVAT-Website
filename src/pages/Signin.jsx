@@ -1,4 +1,4 @@
-import { useState, useContext } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, KeyRound, User as UserIcon } from 'lucide-react';
 import { UserContext } from '../context/user';
@@ -6,7 +6,6 @@ import '../styles/Style.css';
 
 const url = "http://localhost:8080/api/auth/login";
 const jwtUrl = "http://localhost:8080/api/auth/jwt-login";
-
 
 function Signin() {
   const [email, setEmail] = useState('');
@@ -68,42 +67,42 @@ function Signin() {
     }
   };
 
-	    useEffect(() => { // useEffect should run on page load
-        console.log("JWT auto-login effect running");
+  useEffect(() => { // useEffect should run on page load
+    console.log("JWT auto-login effect running");
 
-        const userData = localStorage.getItem("currentUser");
-        if (!userData) return; // if no user, do nothing (stay on login page)
+    const userData = localStorage.getItem("currentUser");
+    if (!userData) return; // if no user, do nothing (stay on login page)
 
-        let parsedUser;
-        try {
-            parsedUser = JSON.parse(userData);
-        } catch (e) {
-            console.error("Invalid user JSON", e);
-            return;
-        }
+    let parsedUser;
+    try {
+        parsedUser = JSON.parse(userData);
+    } catch (e) {
+        console.error("Invalid user JSON", e);
+        return;
+    }
 
-        const token = parsedUser.token; // access the token of user JSON
-        if (!token) return; // if no token, do nothing
+    const token = parsedUser.token; // access the token of user JSON
+    if (!token) return; // if no token, do nothing
 
-        fetch(jwtUrl, {
-            method: "POST",
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
+    fetch(jwtUrl, {
+        method: "POST",
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    })
+        .then(res => res.json())
+        .then(data => {
+            console.log("JWT login response:", data);
+            if (data.data?.accessToken) {
+                parsedUser.token = data.data.accessToken;
+                // update accessToken if it had to be updated
+                localStorage.setItem("currentUser", JSON.stringify(parsedUser));
+                // redirect to map
+                navigate("/map");
+            }
         })
-            .then(res => res.json())
-            .then(data => {
-                console.log("JWT login response:", data);
-                if (data.data?.accessToken) {
-                    parsedUser.token = data.data.accessToken;
-                    // update accessToken if it had to be updated
-                    localStorage.setItem("currentUser", JSON.stringify(parsedUser));
-                    // redirect to map
-                    navigate("/map");
-                }
-            })
-            .catch(err => console.error("JWT login error:", err));
-    }, []);
+        .catch(err => console.error("JWT login error:", err));
+}, []);
   
   //UI Rendering
   return (
