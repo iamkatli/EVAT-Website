@@ -176,8 +176,7 @@ body {
   position: relative;
   margin: 120px auto 0;
   max-width: 80vw;
-  height: 600px;
-  max-height: calc(100vh - 176px);
+  height: 80vh;
   background: rgba(246, 246, 246, 0.6);
   border-radius: 8px;
   box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
@@ -219,7 +218,6 @@ body {
     top: auto;
     left: auto;
     max-width: 80vw;
-    height: auto;
     padding: 1.5rem;
     flex-direction: column;
     gap: 2rem;
@@ -235,7 +233,6 @@ body {
     margin-top: calc(150px + 1rem);
     padding: 1rem;
     flex-direction: column;
-    height: auto;
     width: 95%;
     max-width: 95%;
   }

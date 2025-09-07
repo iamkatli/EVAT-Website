@@ -109,10 +109,10 @@
 
 @media (max-width: 768px) {
     .locate-button {
-        top: 160px; /* push below mobile smart filter */
+        top: 185px; /* push below mobile smart filter */
     }
     .dark-mode-floating {
-        top: 210px; /* push below locate user button */
+        top: 240px; /* push below locate user button */
     }
 }
   
