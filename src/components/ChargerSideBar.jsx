@@ -7,23 +7,15 @@ export default function ChargerSideBar({ station, onClose }) {
   const [kWh, setKWh] = useState('');
   const [pricePerKWh, setPricePerKWh] = useState('');
   const { favourites, toggleFavourite } = useContext(FavouritesContext);
-  const [isFav, setIsFav] = useState(false);
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
 
-
-  useEffect(() => {
-    if (!station) return;
-    const found = favourites.some((s) =>
-      (typeof s === 'object' ? s._id : s) === station._id
-    );
-    setIsFav(found);
-  }, [favourites, station]);
-
-  const estimatedCost =
-    kWh && pricePerKWh ? (kWh * pricePerKWh).toFixed(2) : '';
-
   if (!station) return null;
+
+  // Check if station is in favourites
+  const isFav = favourites.some(s => s._id === station._id);
+
+  const estimatedCost = kWh && pricePerKWh ? (kWh * pricePerKWh).toFixed(2) : '';
 
   return (
     <div className="sidebar-container">
@@ -40,18 +32,19 @@ export default function ChargerSideBar({ station, onClose }) {
         </ul>
 
         <button
-          onClick={() => {
-            toggleFavourite(station);
-            setIsFav((prev) => !prev);
-          }}
+          onClick={() => toggleFavourite(station)}
           className="favourite-btn"
+          style={{
+            background: "transparent",
+            border: "none",
+            cursor: "pointer",
+            fontSize: "1.8rem"
+          }}
         >
-          <span style={{ color: isFav ? 'red' : 'white' }}>
-            {isFav ? '❤️' : '🤍'}
-          </span>{' '}
-          {isFav ? 'Remove from favourites' : 'Add to favourites'}
+          <span style={{ color: isFav ? "red" : "grey" }}>
+            {isFav ? "❤️" : "🤍"}
+          </span>
         </button>
-
       </div>
 
       <div className="sidebar-section">

@@ -4,61 +4,81 @@ export const FavouritesContext = createContext();
 
 export function FavouritesProvider({ children }) {
   const [favourites, setFavourites] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const getToken = () => {
-    try {
-       return JSON.parse(localStorage.getItem("currentUser"))?.accessToken;
-    } catch {
-      return null;
-    }
-  };
+  const storedUser = JSON.parse(localStorage.getItem("currentUser"));
+  const token = storedUser?.token;
 
-  // Load favourite station IDs from backend
+  // Fetch favourites from backend
   useEffect(() => {
-    const token = getToken();
-    if (!token) return;
+    const fetchFavourites = async () => {
+      if (!token) return;
 
-    fetch("http://localhost:8080/api/profile/user-profile", {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        const favStations = data?.data?.favourite_stations || [];
-        setFavourites(favStations);
-      })
-      .catch(console.error);
-  }, []);
+      setLoading(true);
+      setError(null);
 
-  // Toggle favourite
+      try {
+        const res = await fetch("http://localhost:8080/api/profile/user-profile", {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!res.ok) throw new Error("Failed to load favourites");
+
+        const data = await res.json();
+        setFavourites(data.data.favourite_stations || []);
+      } catch (err) {
+        console.error("Fetch favourites error:", err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFavourites();
+  }, [token]);
+
+  // Toggle favourite station (save/remove in DB)
   const toggleFavourite = async (station) => {
-    const token = getToken();
-    if (!token) return;
+    if (!token) {
+      setError("Not authenticated");
+      return;
+    }
 
-    const isFav = favourites.some((s) => s._id === station._id || s === station._id);
+    const isFav = favourites.some((s) => s._id === station._id);
+    const url = isFav
+      ? "http://localhost:8080/api/profile/remove-favourite-station"
+      : "http://localhost:8080/api/profile/add-favourite-station";
 
     try {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ stationId: station._id }),
+      });
+
+      if (!res.ok) throw new Error("Failed to update favourite");
+
+      // Optimistically update UI
       if (isFav) {
-        await fetch("http://localhost:8080/api/profile/remove-favourite-station", {
-          method: "POST",
-          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-          body: JSON.stringify({ stationId: station._id }),
-        });
-        setFavourites((prev) => prev.filter((s) => (typeof s === 'object' ? s._id : s) !== station._id));
+        setFavourites((prev) => prev.filter((s) => s._id !== station._id));
       } else {
-        await fetch("http://localhost:8080/api/profile/add-favourite-station", {
-          method: "POST",
-          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-          body: JSON.stringify({ stationId: station._id }),
-        });
-        setFavourites((prev) => [...prev, station]); // store full object if available
+        setFavourites((prev) => [...prev, station]);
       }
     } catch (err) {
-      console.error("Failed to toggle favourite:", err);
+      console.error("Toggle favourite error:", err);
+      setError(err.message);
     }
   };
 
   return (
-    <FavouritesContext.Provider value={{ favourites, toggleFavourite }}>
+    <FavouritesContext.Provider value={{ favourites, toggleFavourite, loading, error }}>
       {children}
     </FavouritesContext.Provider>
   );

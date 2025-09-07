@@ -22,7 +22,6 @@ function NavBar() {
                     <button className={`nav-button ${isActive('profile') ? 'active' : ''}`} onClick={() => navigate('/profile', { state: { resetDashboard: true } })}>My Dashboard</button>
                     <button className={`nav-button ${isActive('/map') ? 'active' : ''}`} onClick={() => navigate('/map')}>Map</button>
                     <button className={`nav-button ${isActive('/favourites') ? 'active' : ''}`} onClick={() => navigate('/favourites')}>Favourites</button>
-                    <button className={`nav-button ${isActive('/feedback') ? 'active' : ''}`} onClick={() => navigate('/feedback')}>Feedback</button>
                     <button className={`nav-button ${isActive('/bookingtool') ? 'active' : ''}`} onClick={() => navigate('/bookingtool')}>Booking Tool</button>
                 </div>
                 <img src={profileIcon} alt="Profile" className="profile-icon" />
