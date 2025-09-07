@@ -17,12 +17,18 @@ function Profile() {
   const [editingAbout, setEditingAbout] = useState(false);
   const [history, setHistory] = useState([]);
 
+  // New state for car dropdowns
+  const [allVehicles, setAllVehicles] = useState([]);
+  const [makes, setMakes] = useState([]);
+  const [models, setModels] = useState([]);
+  const [years, setYears] = useState([]);
+
   // Reset tab to "dashboard" if user navigates back with reset flag
   useEffect(() => {
     if (location.pathname === "/profile") {
       if (location.state?.resetDashboard) {
         setActiveTab("dashboard");
-        navigate(location.pathname, { replace: true }); // Clear flag
+        navigate(location.pathname, { replace: true });
       }
     }
   }, [location, navigate]);
@@ -30,6 +36,7 @@ function Profile() {
   const storedUser = JSON.parse(localStorage.getItem('currentUser'));
   const token = storedUser?.token;
 
+  // Fetch user profile on load
   useEffect(() => {
     if (!token) {
       navigate('/signin');
@@ -38,38 +45,61 @@ function Profile() {
   
     const fetchUserProfile = async () => {
       try {
-        const res = await fetch("http://localhost:8080/api/auth/profile", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
+        // Fetch basic user profile (id, name, email, mobile, role)
+        const authRes = await fetch("http://localhost:8080/api/auth/profile", {
+          headers: { Authorization: `Bearer ${token}` },
         });
+        if (!authRes.ok) throw new Error("Failed to fetch auth profile");
+        const authData = await authRes.json();
   
-        const text = await res.text();
-        console.log("Raw API response:", text);
+        // Fetch detailed profile (car model, favourite stations)
+        const profileRes = await fetch("http://localhost:8080/api/profile/user-profile", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!profileRes.ok) throw new Error("Failed to fetch user profile details");
+        const profileData = await profileRes.json();
   
-        let json;
-        try {
-          json = JSON.parse(text);
-        } catch (err) {
-          console.error("Invalid JSON:", err);
-          return;
+        // Normalize car for the UI
+        let car = profileData?.data?.user_car_model ?? null;
+  
+        if (car && typeof car === "string") {
+          // car is an ID - fetch full vehicle
+          const vRes = await fetch(`http://localhost:8080/api/vehicle/${car}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (vRes.ok) {
+            const v = await vRes.json();
+            car = {
+              ...v,
+              id: v.id || v._id,
+              year: v.year || v.model_release_year,
+            };
+          } else {
+            car = null;
+          }
+        } else if (car && typeof car === "object") {
+          // car is an object - normalize fields
+          car = {
+            ...car,
+            id: car.id || car._id,
+            year: car.year || car.model_release_year,
+          };
         }
   
-        if (!res.ok) throw new Error("Failed to fetch user profile");
+        const nextUser = {
+          id: authData.data.id,
+          firstName: authData.data.firstName || "",
+          lastName: authData.data.lastName || "",
+          email: authData.data.email || "",
+          mobile: authData.data.mobile || "",
+          role: authData.data.role || "",
+          car,
+          favourites: profileData.data.favourite_stations || [],
+          token: token,
+        };
   
-        console.log("Parsed profile JSON:", json);
-        console.log("User mobile from API:", json.data.mobile);
-  
-        setUser(prev => ({
-          ...prev,
-          id: json.data.id,
-          firstName: json.data.firstName || "",
-          lastName: json.data.lastName || "",
-          email: json.data.email || "",
-          mobile: json.data.mobile || "",
-        }));
+        setUser(nextUser);
+        localStorage.setItem("currentUser", JSON.stringify(nextUser));
       } catch (err) {
         console.error("Profile fetch error:", err);
         navigate('/signin');
@@ -78,6 +108,48 @@ function Profile() {
   
     fetchUserProfile();
   }, [navigate, token]);
+  
+  useEffect(() => {
+    if (editingCar) {
+      fetch("http://localhost:8080/api/vehicle", {
+        headers: { Authorization: `Bearer ${user?.token}` },
+      })
+        .then(res => res.json())
+        .then(data => {
+          const items = (data.data || []).map(v => ({
+              ...v,
+              id: v.id || v._id,
+              year: v.year || v.model_release_year,
+            }));
+            setAllVehicles(items);
+            setMakes(["Select", ...new Set(items.map(v => v.make))]);
+          })
+        .catch(err => console.error("Failed to load vehicles:", err));
+    }
+  }, [editingCar, user?.token]);
+
+  // Fetch all vehicles when editing starts (to populate dropdown list)
+  useEffect(() => {
+    if (user?.car?.make) {
+      const filteredModels = allVehicles
+        .filter(v => v.make === user.car.make)
+        .map(v => v.model);
+      setModels(["Select", ...new Set(filteredModels)]);
+  
+      if (user?.car?.model) {
+        const filteredYears = allVehicles
+          .filter(v => v.make === user.car.make && v.model === user.car.model)
+          .map(v => v.year)
+          .filter(Boolean);
+        setYears(["Select", ...new Set(filteredYears.map(String))]);
+      } else {
+        setYears(["Select"]);
+      }
+    } else {
+      setModels(["Select"]);
+      setYears(["Select"]);
+    }
+  }, [user?.car?.make, user?.car?.model, allVehicles]);
 
   // Reset editing states when switching tabs
   useEffect(() => {
@@ -86,108 +158,54 @@ function Profile() {
     if (activeTab !== "about") setEditingAbout(false);
   }, [activeTab]);
 
-  // Load booking history when switching to history tab
+  // Load booking history (mock data)
   useEffect(() => {
     if (activeTab === "history") {
       const mockBookings = [
-        {
-          transactionId: "BK1001",
-          stationId: "ST001",
-          location: "Chadstone",
-          date: "2025-08-24",
-          startTime: "09:00",
-          duration: 2,
-          amount: 20.0,
-          status: "Completed",
-        },
-        {
-          transactionId: "BK1002",
-          stationId: "ST095",
-          location: "Maidstone",
-          date: "2025-08-23",
-          startTime: "16:00",
-          duration: 1.5,
-          amount: 15.0,
-          status: "Completed",
-        },
-        {
-          transactionId: "BK1003",
-          stationId: "ST015",
-          location: "Sunshine",
-          date: "2025-08-22",
-          startTime: "16:00",
-          duration: 1.5,
-          amount: 15.0,
-          status: "Pending",
-        },
-        {
-          transactionId: "BK1004",
-          stationId: "ST002",
-          location: "Glen Waverley",
-          date: "2025-08-21",
-          startTime: "16:00",
-          duration: 1.5,
-          amount: 15.0,
-          status: "Pending",
-        },
-        {
-          transactionId: "BK1005",
-          stationId: "ST011",
-          location: "Glen Iris",
-          date: "2025-08-20",
-          startTime: "16:00",
-          duration: 1.5,
-          amount: 15.0,
-          status: "Completed",
-        },
-        {
-          transactionId: "BK1006",
-          stationId: "ST035",
-          location: "Rosebud",
-          date: "2025-08-19",
-          startTime: "16:00",
-          duration: 1.5,
-          amount: 15.0,
-          status: "Completed",
-        }
+        { transactionId: "BK1001", stationId: "ST001", location: "Chadstone", date: "2025-08-24", startTime: "09:00", duration: 2, amount: 20.0, status: "Completed" },
+        { transactionId: "BK1002", stationId: "ST095", location: "Maidstone", date: "2025-08-23", startTime: "16:00", duration: 1.5, amount: 15.0, status: "Completed" },
       ];
       setHistory(mockBookings);
-      // To be replaced with API fetch:
-      // fetch('http://localhost:8080/api/profile/bookings', { headers: { Authorization: `Bearer ${token}` } })
-      //   .then(res => res.json())
-      //   .then(data => setHistory(data))
-      //   .catch(err => console.error(err));
     }
   }, [activeTab]);
 
-  // Handle sign out (clear user + redirect)
   const handleSignOut = () => {
     localStorage.removeItem('currentUser');
     navigate("/signin");
   };
 
-  // Save updated About Me details
+  // To make sure mobile follows Au format
+  const isValidMobile = (mobile) => {
+    // Starts with 04 and has 10 digits total
+    const regex = /^04\d{8}$/;
+    return regex.test(mobile);
+  };
+
   const handleSaveAbout = async () => {
     try {
+      if (!isValidMobile(user.mobile)) {
+        alert("Invalid mobile number. It must be 10 digits and start with 04.");
+        return;
+      }
+
       const payload = {
+        id: user.id,
+        email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
         mobile: user.mobile,
       };
   
-      const response = await fetch("http://localhost:8080/api/profile/about", {
+      const response = await fetch("http://localhost:8080/api/auth/profile", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${user.token}`,
         },
         body: JSON.stringify(payload),
       });
   
       if (!response.ok) throw new Error("Failed to update profile info");
-  
-      const data = await response.json();
-      console.log("Profile updated:", data);
   
       setEditingAbout(false);
       alert("Profile information updated successfully!");
@@ -197,74 +215,64 @@ function Profile() {
     }
   };
 
-  // Save updated Car details
   const handleSaveCar = async () => {
     try {
       const token = user?.token;
-
-      // Create vehicle object for update/creation
-      const vehiclePayload = {
-        id: user.car?.id,
-        make: user.car?.make,
-        model: user.car?.model,
-        year: Number(user.car?.year),
+  
+      // The car selected must exist in allVehicles (from /api/vehicle)
+      const selectedVehicle = allVehicles.find(
+        v =>
+          v.make === user.car?.make &&
+          v.model === user.car?.model &&
+          String(v.model_release_year || v.year) === String(user.car?.year)
+      );
+  
+      if (!selectedVehicle) {
+        alert("Invalid vehicle selection");
+        return;
+      }
+  
+      const payload = {
+        vehicleId: selectedVehicle.id, // API requires only this
       };
   
-      // Update if car already exists, otherwise create new
-      const vehicleResponse = await fetch(
-        `http://localhost:8080/api/vehicle${user.car?.id ? `/${user.car.id}` : ''}`,
-        {
-          method: user.car?.id ? "PUT" : "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(vehiclePayload),
-        }
-      );
+      const response = await fetch("http://localhost:8080/api/profile/vehicle-model", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
   
-      if (!vehicleResponse.ok) throw new Error("Failed to update vehicle");
+      if (!response.ok) throw new Error("Failed to update vehicle");
   
-      const vehicleData = await vehicleResponse.json();
-      const vehicleId = vehicleData?.id || user.car?.id;
+      const data = await response.json();
   
-      if (!vehicleId) throw new Error("Vehicle ID not returned from server");
-  
-      // Link updated vehicle to user profile
-      const linkResponse = await fetch(
-        "http://localhost:8080/api/profile/vehicle-model",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ vehicleId }),
-        }
-      );
-  
-      if (!linkResponse.ok) throw new Error("Failed to link vehicle to user");
-  
-      const linkData = await linkResponse.json();
-      console.log("Vehicle linked to user:", linkData);
-  
-      // Update local state with new car info
-      setUser({ ...user, car: { ...vehiclePayload, id: vehicleId } });
+      // Update user state with the selected vehicle
+      const normalizedCar = {
+        ...selectedVehicle,
+        id: selectedVehicle.id ?? selectedVehicle._id ?? vehicleId,
+        year: selectedVehicle.year ?? selectedVehicle.model_release_year ?? null,
+      };
+      
+      setUser(prev => {
+        const next = { ...prev, car: normalizedCar };
+        localStorage.setItem("currentUser", JSON.stringify(next));
+        return next;
+      });
+      
       setEditingCar(false);
-  
-      alert("Vehicle updated successfully in database!");
+      alert("Vehicle updated successfully!");
     } catch (err) {
       console.error(err);
       alert(`Failed to update vehicle: ${err.message}`);
     }
   };
 
-  // Save updated Payment details
   const handleSavePayment = async () => {
     try {
       const token = user?.token;
-
-      // Send updated card info to backend
       const payload = {
         cardNumber: user.cardNumber,
         billingAddress: user.billingAddress,
@@ -272,22 +280,16 @@ function Profile() {
         cvv: user.cvv,
       };
   
-      const response = await fetch(
-        "http://localhost:8080/api/profile/payment",
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(payload),
-        }
-      );
+      const response = await fetch("http://localhost:8080/api/profile/payment", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
   
       if (!response.ok) throw new Error("Failed to update payment info");
-  
-      const data = await response.json();
-      console.log("Payment updated:", data);
   
       setEditingPayment(false);
       alert("Payment information updated successfully!");
@@ -297,7 +299,6 @@ function Profile() {
     }
   };
 
-  // To prevent rendering until user is loaded
   if (!user) return null;
 
   return (
@@ -370,41 +371,58 @@ function Profile() {
               <p>
                 Make:{" "}
                 {editingCar ? (
-                  <input
-                    type="text"
-                    placeholder={user.car?.make || "N/A"}
+                  <select
+                    value={user.car?.make || "Select"}
                     onChange={(e) =>
-                      setUser({ ...user, car: { ...user.car, make: e.target.value } })
+                      setUser({ ...user, car: { ...user.car, make: e.target.value, model: "", year: "" } })
                     }
-                  />
+                  >
+                    {makes.map((make, idx) => (
+                      <option key={idx} value={make}>
+                        {make}
+                      </option>
+                    ))}
+                  </select>
                 ) : (
                   user.car?.make || "N/A"
                 )}
               </p>
+
               <p>
                 Model:{" "}
                 {editingCar ? (
-                  <input
-                    type="text"
-                    placeholder={user.car?.model || "N/A"}
+                  <select
+                    value={user.car?.model || "Select"}
                     onChange={(e) =>
-                      setUser({ ...user, car: { ...user.car, model: e.target.value } })
+                      setUser({ ...user, car: { ...user.car, model: e.target.value, year: "" } })
                     }
-                  />
+                  >
+                    {models.map((model, idx) => (
+                      <option key={idx} value={model}>
+                        {model}
+                      </option>
+                    ))}
+                  </select>
                 ) : (
                   user.car?.model || "N/A"
                 )}
               </p>
+
               <p>
                 Year:{" "}
                 {editingCar ? (
-                  <input
-                    type="number"
-                    placeholder={user.car?.year || "N/A"}
+                  <select
+                    value={String(user.car?.year) || "Select"}
                     onChange={(e) =>
-                      setUser({ ...user, car: { ...user.car, year: Number(e.target.value) } })
+                      setUser({ ...user, car: { ...user.car, year: e.target.value } })
                     }
-                  />
+                  >
+                    {years.map((year, idx) => (
+                      <option key={idx} value={year}>
+                        {year}
+                      </option>
+                    ))}
+                  </select>
                 ) : (
                   user.car?.year || "N/A"
                 )}
@@ -421,9 +439,7 @@ function Profile() {
                   <input
                     type="text"
                     value={user.cardNumber || ""}
-                    onChange={(e) =>
-                      setUser({ ...user, cardNumber: e.target.value })
-                    }
+                    onChange={(e) => setUser({ ...user, cardNumber: e.target.value })}
                   />
                 ) : (
                   user.cardNumber ? "**** **** **** " + user.cardNumber.slice(-4) : "N/A"
@@ -435,9 +451,7 @@ function Profile() {
                   <input
                     type="text"
                     value={user.expiryDate || ""}
-                    onChange={(e) =>
-                      setUser({ ...user, expiryDate: e.target.value })
-                    }
+                    onChange={(e) => setUser({ ...user, expiryDate: e.target.value })}
                     placeholder="MM/YY"
                   />
                 ) : (
@@ -450,9 +464,7 @@ function Profile() {
                   <input
                     type="text"
                     value={user.cvv || ""}
-                    onChange={(e) =>
-                      setUser({ ...user, cvv: e.target.value })
-                    }
+                    onChange={(e) => setUser({ ...user, cvv: e.target.value })}
                   />
                 ) : (
                   "***"
@@ -464,9 +476,7 @@ function Profile() {
                   <input
                     type="text"
                     value={user.billingAddress || ""}
-                    onChange={(e) =>
-                      setUser({ ...user, billingAddress: e.target.value })
-                    }
+                    onChange={(e) => setUser({ ...user, billingAddress: e.target.value })}
                   />
                 ) : (
                   user.billingAddress || "N/A"
@@ -524,18 +534,20 @@ function Profile() {
                 className="button"
                 onClick={() => {
                   if (editingAbout) {
-                    handleSaveAbout(); // save changes
+                    handleSaveAbout();
                   } else {
-                    setEditingAbout(true); // enable editing
+                    setEditingAbout(true);
                   }
                 }}
               >
                 {editingAbout ? "SAVE" : "EDIT"}
               </button>
-              <button
-                className="back-button"
-                onClick={() => setActiveTab("dashboard")}
-              >
+              {editingAbout && (
+                <button className="button cancel-button" onClick={() => setEditingAbout(false)}>
+                  CANCEL
+                </button>
+              )}
+              <button className="back-button" onClick={() => setActiveTab("dashboard")}>
                 BACK
               </button>
             </>
@@ -547,18 +559,15 @@ function Profile() {
                 className="button"
                 onClick={() => {
                   if (editingCar) {
-                    handleSaveCar(); // save to backend
+                    handleSaveCar();
                   } else {
-                    setEditingCar(true); // enable editing
+                    setEditingCar(true);
                   }
                 }}
               >
                 {editingCar ? "SAVE" : "EDIT"}
               </button>
-              <button
-                className="back-button"
-                onClick={() => setActiveTab("dashboard")}
-              >
+              <button className="back-button" onClick={() => setActiveTab("dashboard")}>
                 BACK
               </button>
             </>
@@ -578,20 +587,14 @@ function Profile() {
               >
                 {editingPayment ? "SAVE" : "EDIT"}
               </button>
-              <button
-                className="back-button"
-                onClick={() => setActiveTab("dashboard")}
-              >
+              <button className="back-button" onClick={() => setActiveTab("dashboard")}>
                 BACK
               </button>
             </>
           )}
 
           {activeTab === "history" && (
-            <button
-              className="back-button"
-              onClick={() => setActiveTab("dashboard")}
-            >
+            <button className="back-button" onClick={() => setActiveTab("dashboard")}>
               BACK
             </button>
           )}
