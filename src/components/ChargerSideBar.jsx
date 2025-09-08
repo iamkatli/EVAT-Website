@@ -1,6 +1,7 @@
 import React, { useState, useContext, useEffect } from 'react';
 import '../styles/ChargerSideBar.css';
 import { FavouritesContext } from '../context/FavouritesContext';
+import SideBarBookingTool from '../components/SideBarBookingTool';
 
 export default function ChargerSideBar({ station, onClose }) {
   const [feedback, setFeedback] = useState('');
@@ -46,6 +47,11 @@ export default function ChargerSideBar({ station, onClose }) {
           </span>
         </button>
       </div>
+
+      <div className="sidebar-section">
+        <SideBarBookingTool />
+      </div>
+
 
       <div className="sidebar-section">
         <h4 style={{ marginBottom: '4px' }}>⭐ Rate this charger</h4>

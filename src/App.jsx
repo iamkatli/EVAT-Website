@@ -8,7 +8,8 @@ import Favourite from './pages/Favourite';
 import { UserProvider } from './context/user';
 import { FavouritesProvider } from "./context/FavouritesContext";
 import Cost from "./pages/cost";
-
+import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer } from 'react-toastify';
 
 import BookingTool from './pages/BookingTool';
 
@@ -32,6 +33,7 @@ function App() {
           </Routes>
         </Router>
       </FavouritesProvider>
+      <ToastContainer position="top-center" autoClose={3000} />
     </UserProvider>
   );
 }
