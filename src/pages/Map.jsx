@@ -12,6 +12,7 @@ import { UserContext } from '../context/user';
 import ChargerSideBar from '../components/ChargerSideBar';
 import { FavouritesContext } from '../context/FavouritesContext';
 import { getChargers, getConnectorTypes, getOperatorTypes } from '../services/chargerService';
+import ChatBubble from "../components/ChatBubble";
 
 // styles
 import '../styles/SmartFilter.css';
@@ -351,6 +352,7 @@ export default function Map() {
           favourites={favourites}
           toggleFavourite={toggleFavourite}
         />
+        <ChatBubble />
       </div>
     </div>
   );

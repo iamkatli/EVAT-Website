@@ -69,7 +69,7 @@ export function FavouritesProvider({ children }) {
       if (isFav) {
         setFavourites((prev) => prev.filter((s) => s._id !== station._id));
       } else {
-        setFavourites((prev) => [...prev, station]);
+        setFavourites((prev) => [station, ...prev]);
       }
     } catch (err) {
       console.error("Toggle favourite error:", err);
