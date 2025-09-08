@@ -12,6 +12,7 @@ import NavBar from "../components/NavBar";
 import Background from "../components/Background";
 import { FavouritesContext } from "../context/FavouritesContext";
 import "../styles/Favourite.css";
+import ChatBubble from "../components/ChatBubble";
 
 function Favourite() {
   const { favourites, toggleFavourite, loading, error } = useContext(FavouritesContext);
@@ -68,6 +69,7 @@ function Favourite() {
           )}
         </div>
       </Background>
+      <ChatBubble />
     </div>
   );
 }

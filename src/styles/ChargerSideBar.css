@@ -1,12 +1,12 @@
 .sidebar-container {
   position: absolute;
-  right: 0;
+  left: 0;
   top: 0;
   width: 300px;
   max-width: 90%;
   height: 100%;
   background-color: #fdfdfd;
-  border-left: 1px solid #ccc;
+  border-right: 1px solid #ccc;
   box-shadow: -2px 0 6px rgba(0, 0, 0, 0.1);
   padding: 16px;
   overflow-y: auto;

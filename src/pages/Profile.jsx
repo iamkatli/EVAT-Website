@@ -1,9 +1,15 @@
+// NOTE: For security reasons, card payment details are NOT stored in the backend.
+// This section only saves card information locally in the browser.
+// Full backend integration can be implemented
+// in the future when actual payments need to be made.
+
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import NavBar from '../components/NavBar';
 import Background from "../components/Background";
 import profileImage from '../assets/profileImage.png';
 import '../styles/Profile.css';
+import ChatBubble from "../components/ChatBubble";
 
 function Profile() {
   const navigate = useNavigate();
@@ -270,33 +276,46 @@ function Profile() {
     }
   };
 
-  const handleSavePayment = async () => {
-    try {
-      const token = user?.token;
-      const payload = {
-        cardNumber: user.cardNumber,
-        billingAddress: user.billingAddress,
-        expiryDate: user.expiryDate,
-        cvv: user.cvv,
-      };
-  
-      const response = await fetch("http://localhost:8080/api/profile/payment", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(payload),
-      });
-  
-      if (!response.ok) throw new Error("Failed to update payment info");
-  
-      setEditingPayment(false);
-      alert("Payment information updated successfully!");
-    } catch (err) {
-      console.error(err);
-      alert(`Failed to update payment: ${err.message}`);
+  const handleSavePayment = () => {
+    // Remove spaces for validation
+    const cardNum = (user.cardNumber || "").replace(/\s+/g, '');
+    if (!/^\d{16}$/.test(cardNum)) {
+      alert("Card number must be 16 digits.");
+      return;
     }
+  
+    if (!/^\d{3}$/.test(user.cvv || "")) {
+      alert("CVV must be 3 digits.");
+      return;
+    }
+  
+    // Validate expiry date to have MM/YY format
+    const expRegex = /^(0[1-9]|1[0-2])\/?([0-9]{2})$/;
+    if (!user.expiryDate || !expRegex.test(user.expiryDate)) {
+      alert("Expiry date must be in MM/YY format.");
+      return;
+    }
+  
+    // Check if expiry date is in the future
+    const [inputMonth, inputYear] = user.expiryDate.split("/").map(s => parseInt(s, 10));
+    const now = new Date();
+    const currentYear = now.getFullYear() % 100; // last 2 digits
+    const currentMonth = now.getMonth() + 1; // 0-indexed
+  
+    if (inputYear < currentYear || (inputYear === currentYear && inputMonth < currentMonth)) {
+      alert("Card has expired. Please enter a valid card detail.");
+      return;
+    }
+  
+    // Save locally
+    setUser(prev => {
+      const next = { ...prev, cardNumber: cardNum };
+      localStorage.setItem("currentUser", JSON.stringify(next));
+      return next;
+    });
+  
+    setEditingPayment(false);
+    alert("Payment information updated locally.");
   };
 
   if (!user) return null;
@@ -324,198 +343,227 @@ function Profile() {
 
           {activeTab === "about" && (
             <div>
-              <h3>About Me</h3>
-              <p>
-                First Name:{" "}
-                {editingAbout ? (
-                  <input
-                    type="text"
-                    value={user.firstName || ""}
-                    onChange={(e) => setUser({ ...user, firstName: e.target.value })}
-                  />
-                ) : (
-                  user.firstName
-                )}
-              </p>
-              <p>
-                Last Name:{" "}
-                {editingAbout ? (
-                  <input
-                    type="text"
-                    value={user.lastName || ""}
-                    onChange={(e) => setUser({ ...user, lastName: e.target.value })}
-                  />
-                ) : (
-                  user.lastName
-                )}
-              </p>
-              <p>Email: {user.email || "N/A"}</p>
-              <p>
-                Phone:{" "}
-                {editingAbout ? (
-                  <input
-                    type="text"
-                    value={user.mobile || ""}
-                    onChange={(e) => setUser({ ...user, mobile: e.target.value })}
-                  />
-                ) : (
-                  user.mobile || "N/A"
-                )}
-              </p>
+              <h3 className="section-title">About Me</h3>
+              <div className="section-body">
+                <p>
+                  First Name:{" "}
+                  {editingAbout ? (
+                    <input
+                      type="text"
+                      value={user.firstName || ""}
+                      onChange={(e) => setUser({ ...user, firstName: e.target.value })}
+                    />
+                  ) : (
+                    user.firstName
+                  )}
+                </p>
+                <p>
+                  Last Name:{" "}
+                  {editingAbout ? (
+                    <input
+                      type="text"
+                      value={user.lastName || ""}
+                      onChange={(e) => setUser({ ...user, lastName: e.target.value })}
+                    />
+                  ) : (
+                    user.lastName
+                  )}
+                </p>
+                <p>Email: {user.email || "N/A"}</p>
+                <p>
+                  Phone:{" "}
+                  {editingAbout ? (
+                    <input
+                      type="text"
+                      value={user.mobile || ""}
+                      onChange={(e) => setUser({ ...user, mobile: e.target.value })}
+                    />
+                  ) : (
+                    user.mobile || "N/A"
+                  )}
+                </p>
+              </div>
             </div>
           )}
 
           {activeTab === "car" && (
             <div>
-              <h3>My Car</h3>
-              <p>
-                Make:{" "}
-                {editingCar ? (
-                  <select
-                    value={user.car?.make || "Select"}
-                    onChange={(e) =>
-                      setUser({ ...user, car: { ...user.car, make: e.target.value, model: "", year: "" } })
-                    }
-                  >
-                    {makes.map((make, idx) => (
-                      <option key={idx} value={make}>
-                        {make}
-                      </option>
-                    ))}
-                  </select>
-                ) : (
-                  user.car?.make || "N/A"
-                )}
-              </p>
+              <h3 className="section-title">My Car</h3>
+              <div className="section-body">
+                <p>
+                  Car Make:{" "}
+                  {editingCar ? (
+                    <select
+                      value={user.car?.make || "Select"}
+                      onChange={(e) =>
+                        setUser({ ...user, car: { ...user.car, make: e.target.value, model: "", year: "" } })
+                      }
+                    >
+                      {makes.map((make, idx) => (
+                        <option key={idx} value={make}>
+                          {make}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    user.car?.make || "N/A"
+                  )}
+                </p>
 
-              <p>
-                Model:{" "}
-                {editingCar ? (
-                  <select
-                    value={user.car?.model || "Select"}
-                    onChange={(e) =>
-                      setUser({ ...user, car: { ...user.car, model: e.target.value, year: "" } })
-                    }
-                  >
-                    {models.map((model, idx) => (
-                      <option key={idx} value={model}>
-                        {model}
-                      </option>
-                    ))}
-                  </select>
-                ) : (
-                  user.car?.model || "N/A"
-                )}
-              </p>
+                <p>
+                  Car Model:{" "}
+                  {editingCar ? (
+                    <select
+                      value={user.car?.model || "Select"}
+                      onChange={(e) =>
+                        setUser({ ...user, car: { ...user.car, model: e.target.value, year: "" } })
+                      }
+                    >
+                      {models.map((model, idx) => (
+                        <option key={idx} value={model}>
+                          {model}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    user.car?.model || "N/A"
+                  )}
+                </p>
 
-              <p>
-                Year:{" "}
-                {editingCar ? (
-                  <select
-                    value={String(user.car?.year) || "Select"}
-                    onChange={(e) =>
-                      setUser({ ...user, car: { ...user.car, year: e.target.value } })
-                    }
-                  >
-                    {years.map((year, idx) => (
-                      <option key={idx} value={year}>
-                        {year}
-                      </option>
-                    ))}
-                  </select>
-                ) : (
-                  user.car?.year || "N/A"
-                )}
-              </p>
+                <p>
+                  Model Year:{" "}
+                  {editingCar ? (
+                    <select
+                      value={String(user.car?.year) || "Select"}
+                      onChange={(e) =>
+                        setUser({ ...user, car: { ...user.car, year: e.target.value } })
+                      }
+                    >
+                      {years.map((year, idx) => (
+                        <option key={idx} value={year}>
+                          {year}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    user.car?.year || "N/A"
+                  )}
+                </p>
+              </div>
             </div>
           )}
 
           {activeTab === "payment" && (
             <div>
-              <h3>Payment Information</h3>
-              <p>
-                Card:{" "}
-                {editingPayment ? (
-                  <input
-                    type="text"
-                    value={user.cardNumber || ""}
-                    onChange={(e) => setUser({ ...user, cardNumber: e.target.value })}
-                  />
-                ) : (
-                  user.cardNumber ? "**** **** **** " + user.cardNumber.slice(-4) : "N/A"
-                )}
-              </p>
-              <p>
-                Expiry Date:{" "}
-                {editingPayment ? (
-                  <input
-                    type="text"
-                    value={user.expiryDate || ""}
-                    onChange={(e) => setUser({ ...user, expiryDate: e.target.value })}
-                    placeholder="MM/YY"
-                  />
-                ) : (
-                  user.expiryDate || "N/A"
-                )}
-              </p>
-              <p>
-                CVV:{" "}
-                {editingPayment ? (
-                  <input
-                    type="text"
-                    value={user.cvv || ""}
-                    onChange={(e) => setUser({ ...user, cvv: e.target.value })}
-                  />
-                ) : (
-                  "***"
-                )}
-              </p>
-              <p>
-                Billing Address:{" "}
-                {editingPayment ? (
-                  <input
-                    type="text"
-                    value={user.billingAddress || ""}
-                    onChange={(e) => setUser({ ...user, billingAddress: e.target.value })}
-                  />
-                ) : (
-                  user.billingAddress || "N/A"
-                )}
-              </p>
+              <h3 className="section-title">Payment Information</h3>
+              <div className="section-body">
+                <p>
+                  Card:{" "}
+                  {editingPayment ? (
+                    <input
+                      type="text"
+                      value={user.cardNumber || ""}
+                      onChange={(e) => {
+                        // Only digits, max 16
+                        let val = e.target.value.replace(/\D/g, '').slice(0,16);
+                        // Add spaces every 4 digits for display
+                        val = val.replace(/(\d{4})(?=\d)/g, '$1 ');
+                        setUser({ ...user, cardNumber: val });
+                      }}
+                      placeholder="1234 5678 9012 3456"
+                    />
+                  ) : (
+                    user.cardNumber 
+                      ? "**** **** **** " + user.cardNumber.replace(/\s/g, '').slice(-4) 
+                      : "**** **** **** 1234"
+                  )}
+                </p>
+
+                <p>
+                  Expiry Date:{" "}
+                  {editingPayment ? (
+                    <input
+                      type="text"
+                      value={user.expiryDate || ""}
+                      onChange={(e) => {
+                        let val = e.target.value.replace(/\D/g, '').slice(0, 4); // digits only, max 4
+                        if (val.length > 2) val = val.slice(0,2) + '/' + val.slice(2); // insert '/'
+                        setUser({ ...user, expiryDate: val });
+                      }}
+                      placeholder="MM/YY"
+                    />
+                  ) : (
+                    user.expiryDate || "MM/YY"
+                  )}
+                </p>
+
+                <p>
+                  CVV:{" "}
+                  {editingPayment ? (
+                    <input
+                      type="text"
+                      value={user.cvv || ""}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/\D/g, '').slice(0,3);
+                        setUser({ ...user, cvv: val });
+                      }}
+                      placeholder="123"
+                    />
+                  ) : (
+                    "***"
+                  )}
+                </p>
+
+                <p>
+                  Billing Address:{" "}
+                  {editingPayment ? (
+                    <input
+                      type="text"
+                      value={user.billingAddress || ""}
+                      onChange={(e) => setUser({ ...user, billingAddress: e.target.value })}
+                      placeholder="N/A"
+                    />
+                  ) : (
+                    user.billingAddress || "N/A"
+                  )}
+                </p>
+              </div>
             </div>
           )}
 
           {activeTab === "history" && (
             <div className="history-container">
-              <h3>Transaction History</h3>
-              {history.length === 0 ? (
-                <p>No past transactions available.</p>
-              ) : (
-                <div className="history-scroll">
-                  <table className="history-table">
-                    <thead>
-                      <tr>
-                        <th>ID</th>
-                        <th>Date</th>
-                        <th>Amount ($)</th>
-                        <th>Description</th>
-                        <th>Status</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {history.map(tx => (
-                        <tr key={tx.transactionId}>
-                          <td>{tx.transactionId}</td>
-                          <td>{tx.date} {tx.startTime}</td>
-                          <td>{tx.amount.toFixed(2)}</td>
-                          <td>{`Booking at ${tx.location} (Station ${tx.stationId}) for ${tx.duration}h`}</td>
-                          <td>{tx.status}</td>
+              <h3 className="section-title">Booking History</h3>
+                <div className="section-body">
+                {history.length === 0 ? (
+                  <p>No past transactions available.</p>
+                ) : (
+                  <div className="history-scroll">
+                    <table className="history-table">
+                      <thead>
+                        <tr>
+                          <th>ID</th>
+                          <th>Date</th>
+                          <th>Amount ($)</th>
+                          <th>Description</th>
+                          <th>Status</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
+                      </thead>
+                      <tbody>
+                        {history.map(tx => (
+                          <tr key={tx.transactionId}>
+                            <td>{tx.transactionId}</td>
+                            <td>{tx.date} {tx.startTime}</td>
+                            <td>{tx.amount.toFixed(2)}</td>
+                            <td>{`Booking at ${tx.location} (Station ${tx.stationId}) for ${tx.duration}h`}</td>
+                            <td>{tx.status}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </div>
@@ -600,6 +648,7 @@ function Profile() {
           )}
         </div>
       </Background>
+      <ChatBubble />
     </div>
   );
 }

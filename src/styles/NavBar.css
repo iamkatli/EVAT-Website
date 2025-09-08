@@ -10,7 +10,7 @@
     right: 0;
     z-index: 1000;
     flex-wrap: nowrap;
-    position: fixed;
+    position: sticky;
 }
 
 .left-section {
