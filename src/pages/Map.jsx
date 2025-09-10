@@ -9,7 +9,10 @@ import LocateUser from '../components/LocateUser';
 import ClusterMarkers from '../components/ClusterMarkers';
 import SmartFilter from '../components/SmartFilter';
 import { UserContext } from '../context/user';
+import ChargerSideBar from '../components/ChargerSideBar';
+import { FavouritesContext } from '../context/FavouritesContext';
 import { getChargers, getConnectorTypes, getOperatorTypes } from '../services/chargerService';
+import ChatBubble from "../components/ChatBubble";
 
 // styles
 import '../styles/SmartFilter.css';
@@ -25,7 +28,9 @@ L.Icon.Default.mergeOptions({
 
 // Utility function to parse cost
 function parseCost(costStr) {
-  if (!costStr || typeof costStr !== "string"); // return null if not parsable
+  if (!costStr || typeof costStr !== "string") {
+    return null; // return null if not parsable
+  }
 
   const lower = costStr.toLowerCase().trim();
 
@@ -34,7 +39,7 @@ function parseCost(costStr) {
 
   // Handle cents (e.g., 55c)
   const centsMatch = lower.match(/([\d.]+)\s*(c|cent|cents)\b/);
-  if (centsMatch) return parseInt((centsMatch[1]), 10);
+  if (centsMatch) return parseInt(centsMatch[1], 10);
 
   // Handle $ amounts with optional per-unit info (e.g., $0.2/kwh, $0.60 per kwh)
   const dollarMatch = lower.match(/\$([\d.]+)/);
@@ -56,37 +61,37 @@ function parseCost(costStr) {
 function normaliseOperatorName(name) {
   if (!name) return "Unknown";
 
-    const lower = name.toLowerCase().trim();
+  const lower = name.toLowerCase().trim();
 
-    // Tesla group
-    if (lower.includes("tesla")) {
-      return "Tesla";
-    }
+  // Tesla group
+  if (lower.includes("tesla")) {
+    return "Tesla";
+  }
 
-    // Evie group
-    if (lower.includes("evie")) {
-      return "Evie";
-    }
+  // Evie group
+  if (lower.includes("evie")) {
+    return "Evie";
+  }
 
-    // Pulse group
-    if (lower.includes("pulse")) {
-      return "BP Pulse";
-    }
+  // Pulse group
+  if (lower.includes("pulse")) {
+    return "BP Pulse";
+  }
 
-    // Pulse group
-    if (lower.includes("ampcharge")) {
-      return "Ampol Ampcharge";
-    }
+  // Pulse group
+  if (lower.includes("ampcharge")) {
+    return "Ampol Ampcharge";
+  }
 
-    // NRMA group
-    if (lower.includes("nrma")) {
-      return "NRMA";
-    }    
+  // NRMA group
+  if (lower.includes("nrma")) {
+    return "NRMA";
+  }
 
-    // Unknown group
-    if (lower.includes("unknown")) {
-      return "Unknown";
-    }
+  // Unknown group
+  if (lower.includes("unknown")) {
+    return "Unknown";
+  }
 
   return name;
 }
@@ -120,7 +125,6 @@ export default function Map() {
     priceRange: [priceMin, priceMax],
     operatorType: [],
     showOnlyAvailable: false,
-    darkMode: false,
     showReliability: true
   });
 
@@ -129,23 +133,25 @@ export default function Map() {
   const [bbox, setBbox] = useState(null);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState('');
+  const [selectedStation, setSelectedStation] = useState(null);
+  const { favourites, toggleFavourite } = useContext(FavouritesContext);
   const [connectorTypes, setConnectorTypes] = useState([]);
   const [operatorTypes, setOperatorTypes] = useState([]);
 
   // local UI state for the floating dark-mode button icon
-  const [isDark, setIsDark] = useState(() =>
-    typeof document !== 'undefined' && document.body.classList.contains('dark-mode')
-  );
+  const [isDark, setIsDark] = useState(false);
 
-  // keep body class in sync when SmartFilter toggles filters.darkMode
+  // toggle dark mode only when inside the Map page
   useEffect(() => {
-    const desired = Boolean(filters.darkMode);
-    const hasClass = document.body.classList.contains('dark-mode');
-    if (desired !== hasClass) {
-      document.body.classList.toggle('dark-mode', desired);
+    if (isDark) {
+      document.body.classList.add("dark-mode");
+    } else {
+      document.body.classList.remove("dark-mode");
     }
-    setIsDark(document.body.classList.contains('dark-mode'));
-  }, [filters.darkMode]);
+    return () => {
+      document.body.classList.remove("dark-mode");
+    };
+  }, [isDark]);
 
   // Fetch chargers only when token available and bbox changes
   useEffect(() => {
@@ -265,7 +271,7 @@ export default function Map() {
   }, [stations, filters]);
 
   return (
-    <div>
+    <div className={`map-page ${isDark ? "dark" : ""}`}>
       <NavBar />
       <div style={{ position: 'relative', height: '100vh', width: '100%' }}>
         <button
@@ -308,19 +314,21 @@ export default function Map() {
             attribution="&copy; OpenStreetMap contributors"
           />
           <BoundsWatcher onChange={setBbox} />
-          <ClusterMarkers showReliability={filters.showReliability} stations={filteredStations} />
+          <ClusterMarkers
+            showReliability={filters.showReliability}
+            stations={filteredStations}
+            onSelectStation={(st) => setSelectedStation(st)}
+            isDark={isDark}
+          />
+
+
           <LocateUser />
         </MapContainer>
 
         <button
           className="dark-mode-floating"
           aria-label="Toggle dark mode"
-          onClick={() => {
-            document.body.classList.toggle('dark-mode');
-            const nowDark = document.body.classList.contains('dark-mode');
-            setIsDark(nowDark);
-            setFilters(prev => ({ ...prev, darkMode: nowDark }));
-          }}
+          onClick={() => setIsDark(prev => !prev)}
           title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
         >
           {isDark ? '🌙' : '☀️'}
@@ -337,6 +345,13 @@ export default function Map() {
           connectorTypes={connectorTypes}
           operatorTypes={operatorTypes}
         />
+        <ChargerSideBar
+          station={selectedStation}
+          onClose={() => setSelectedStation(null)}
+          favourites={favourites}
+          toggleFavourite={toggleFavourite}
+        />
+        <ChatBubble />
       </div>
     </div>
   );

@@ -20,7 +20,56 @@
 }
 
 .dark-mode-floating:hover {
-    background-color: #222; 
+    background-color: #2e5e2c; 
+}
+
+/* Dark Mode Styles */
+.map-page.dark {
+    background-color: #1a1a1a;
+    color: #ffffff;
+}
+
+.map-page.dark .locate-button,
+.map-page.dark .dark-mode-floating {
+    background-color: #8b9f94;
+}
+
+.map-page.dark nav {
+    background-color: #2d2d2d;
+    border-bottom: 1px solid #444;
+}
+
+.map-page.dark nav button,
+.map-page.dark .logo-text {
+    color: #ccc;
+}
+
+.map-page.dark nav button:hover {
+    color: #4CAF50;
+}
+
+.map-page.dark nav button.active,
+.map-page.dark nav button[style*="font-weight: bold"] {
+    color: #4CAF50;
+}
+
+/* Dark mode for map tiles */
+.map-page.dark .leaflet-tile-pane {
+    filter: invert(90%) hue-rotate(180deg);
+}
+
+/* Dark mode for popups */
+.map-page.dark .leaflet-popup-content-wrapper {
+    background-color: #2d2d2d;
+    color: #ffffff;
+}
+
+.map-page.dark .leaflet-popup-content h3 {
+    color: #4CAF50;
+}
+
+.map-page.dark .leaflet-popup-content strong {
+    color: #4CAF50;
 }
 
 /* Locate user button */
@@ -29,7 +78,7 @@
     top: 8.5rem;
     right: 0.5rem;
     z-index: 900;
-    background-color: #eff4ef;
+    background-color: #444;
     color: #ffffff;
     border: none;
     border-radius: 9999px;
@@ -60,10 +109,10 @@
 
 @media (max-width: 768px) {
     .locate-button {
-        top: 160px; /* push below mobile smart filter */
+        top: 185px; /* push below mobile smart filter */
     }
     .dark-mode-floating {
-        top: 210px; /* push below locate user button */
+        top: 240px; /* push below locate user button */
     }
 }
   

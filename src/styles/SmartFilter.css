@@ -4,7 +4,7 @@
   top: 80px; 
   right: 12px;
   z-index: 1000;
-  background-color: #2A5F3B;
+  background-color: #5b9062;
   color: #fff;
   border: none;
   padding: 0.6rem 1rem;
@@ -16,7 +16,7 @@
 }
 
 .filter-toggle-button:hover {
-  background-color: #1e4a2e;
+  background-color: #2A5F3B;
 }
 
 .filter-toggle-button:active {
@@ -289,13 +289,13 @@ input:checked + .toggle-slider:before {
 }
 
 .apply-button:hover {
-  background-color: #1e4a2e;
+  background-color: #AAC597;
 }
 
 /* Responsive */
 @media (max-width: 768px) {
   .filter-toggle-button {
-    top: 110px; /* push below mobile navbar */
+    top: 130px; /* push below mobile navbar */
   }
 }
 

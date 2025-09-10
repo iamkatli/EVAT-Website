@@ -9,7 +9,6 @@ import '../styles/SmartFilter.css';
  * - Filter by charging speed (<22kW, 22-50kW, 50-150kW, 150kW+)
  * - Set price range with a slider (0-100)
  * - Toggle availability filter (show only available stations)
- * - Toggle dark mode for the entire application
  * - Toggle reliability overlay
  * 
  * @param {boolean} isOpen - Controls modal visibility
@@ -123,7 +122,6 @@ const SmartFilter = ({
       priceRange: [priceMin, priceMax],
       operatorType: [],
       showOnlyAvailable: false,
-      darkMode: false,
       showReliability: true
     };
     setFilters(resetFilters);
