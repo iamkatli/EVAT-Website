@@ -73,8 +73,6 @@ export default function SidebarBookingTool() {
 
     return (
         <div className="sidebar-booking">
-            <h3>📅 Book this charger</h3>
-
             <label>Date</label>
             <DatePicker
                 selected={selectedDate}
