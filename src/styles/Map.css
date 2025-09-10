@@ -31,7 +31,7 @@
 
 .map-page.dark .locate-button,
 .map-page.dark .dark-mode-floating {
-    background-color: #8b9f94;
+    background-color: #becac4ed;
 }
 
 .map-page.dark nav {
@@ -105,6 +105,29 @@
 .locate-button:disabled {
     opacity: 0.6;
     cursor: not-allowed;
+}
+
+/* Leaflet Zoom Control */
+.leaflet-control-zoom {
+    position: fixed !important;
+    top: calc(12.5rem + 44px + 8px);
+    right: 0.8rem !important;
+    z-index: 900;
+}
+
+.leaflet-control-zoom a {
+    width: 60px;
+    height: 60px;
+    line-height: 60px;
+    background-color: #444;
+    color: #fff;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+}
+
+.leaflet-control-zoom a:hover {
+    background-color: #2e5e2c;
 }
 
 @media (max-width: 768px) {
