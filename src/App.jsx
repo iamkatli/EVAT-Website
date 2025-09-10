@@ -8,9 +8,12 @@ import Favourite from './pages/Favourite';
 import { UserProvider } from './context/user';
 import { FavouritesProvider } from "./context/FavouritesContext";
 import Cost from "./pages/cost";
+<<<<<<< Updated upstream
 
 
 import BookingTool from './pages/BookingTool';
+=======
+>>>>>>> Stashed changes
 
 function App() {
   return (
@@ -25,8 +28,16 @@ function App() {
             <Route path="/map" element={<Map />} />
             <Route path="/feedback" element={<Feedback />} />
             <Route path="/favourites" element={<Favourite />} />
+<<<<<<< Updated upstream
             <Route path="/cost" element={<Cost />} />
             <Route path="/bookingtool" element={<BookingTool />} />
+=======
+<<<<<<< HEAD
+            <Route path="/cost" element={<Cost />} />
+            <Route path="/bookingtool" element={<BookingTool />} />
+=======
+>>>>>>> parent of dc604ad (Merge branch 'darcy' of https://github.com/darcylambrick/EVAT-Website into darcy)
+>>>>>>> Stashed changes
             {/* Catch-all Route */}
             <Route path="*" element={<div>404 Page Not Found</div>} />
           </Routes>
