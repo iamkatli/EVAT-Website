@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import '../styles/SmartFilter.css';
 
 /**
@@ -14,15 +14,17 @@ import '../styles/SmartFilter.css';
  * 
  * @param {boolean} isOpen - Controls modal visibility
  * @param {function} onClose - Callback to close the modal
- * @param {function} onApplyFilters - Callback when filters are applied
  * @param {object} filters - Current filter state from parent component
  * @param {function} setFilters - Function to update filters in parent
  * @param {number} filteredCount - Number of stations matching current filters
+ * @param {number} priceMin - Minimum price of station
+ * @param {number} priceMax - Maximum price of station
+ * @param {array} connectorTypes - Types of connectors to filter between
+ * @param {array} operatorTypes - Types of operators to filter between
  */
 const SmartFilter = ({
   isOpen,
   onClose,
-  onApplyFilters,
   filters,
   setFilters,
   filteredCount,
@@ -31,21 +33,15 @@ const SmartFilter = ({
   connectorTypes,
   operatorTypes
 }) => {
-  // Local state for filter changes - allows users to modify filters without applying immediately
-  const [localFilters, setLocalFilters] = useState(filters);
+
   // Available filter options - these could be moved to a config file in a larger app
   const chargingSpeeds = [ '<7kW', '7-22kW', '22-50kW', '50-150kW', '150kW-250kW', '250kW+'];
-
-  // Update local filters when props change (sync with parent component)
-  React.useEffect(() => {
-    setLocalFilters(filters);
-  }, [filters]);
 
   /**
    * Toggle charger type selection
    */
   const handleChargerTypeToggle = (type) => {
-    setLocalFilters(prev => ({
+    setFilters(prev => ({
       ...prev,
       chargerType: prev.chargerType.includes(type)
         ? prev.chargerType.filter(t => t !== type)
@@ -57,7 +53,7 @@ const SmartFilter = ({
    * Toggle charging speed selection
    */
   const handleChargingSpeedToggle = (speed) => {
-    setLocalFilters(prev => ({
+    setFilters(prev => ({
       ...prev,
       chargingSpeed: prev.chargingSpeed.includes(speed)
         ? prev.chargingSpeed.filter(s => s !== speed)
@@ -70,7 +66,7 @@ const SmartFilter = ({
    */
   const handleMinChange = (e) => {
     const newMin = parseInt(e.target.value);
-    setLocalFilters((prev) => ({
+    setFilters((prev) => ({
       ...prev,
       priceRange: [Math.min(newMin, prev.priceRange[1]), prev.priceRange[1]], // keep min ≤ max
     }));
@@ -78,7 +74,7 @@ const SmartFilter = ({
 
   const handleMaxChange = (e) => {
     const newMax = parseInt(e.target.value);
-    setLocalFilters((prev) => ({
+    setFilters((prev) => ({
       ...prev,
       priceRange: [prev.priceRange[0], Math.max(newMax, prev.priceRange[0])], // keep max ≥ min
     }));
@@ -88,7 +84,7 @@ const SmartFilter = ({
    * Toggle charger operator selection
    */
   const handleOperatorToggle = (type) => {
-  setLocalFilters(prev => ({
+  setFilters(prev => ({
     ...prev,
     operatorType: prev.operatorType.includes(type)
       ? prev.operatorType.filter(o => o !== type)
@@ -100,7 +96,7 @@ const SmartFilter = ({
    * Toggle availability filter
    */
   const handleAvailabilityToggle = () => {
-    setLocalFilters(prev => ({
+    setFilters(prev => ({
       ...prev,
       showOnlyAvailable: !prev.showOnlyAvailable
     }));
@@ -111,7 +107,7 @@ const SmartFilter = ({
    * Enables/disables the reliability score overlay on the map
    */
   const handleReliabilityToggle = () => {
-    setLocalFilters(prev => ({
+    setFilters(prev => ({
       ...prev,
       showReliability: !prev.showReliability
     }));
@@ -130,23 +126,44 @@ const SmartFilter = ({
       darkMode: false,
       showReliability: true
     };
-    setLocalFilters(resetFilters);
+    setFilters(resetFilters);
   };
 
   /**
-   * Apply the current filter settings
+   * Closes the window (keeping button just for UX)
    */
   const handleApplyFilter = () => {
-    setFilters(localFilters);
-    onApplyFilters(localFilters);
     onClose();
   };
+
+  // Closes filter panel when clicking outside the smart filter
+  const modalRef = useRef(null);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      // If click is outside modal, close it
+      if (modalRef.current && !modalRef.current.contains(event.target)) {
+        onClose();
+      }
+    }
+
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+
+    // Cleanup
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
   return (
     <div className="smart-filter-overlay">
-      <div className="smart-filter-panel">
+      <div className="smart-filter-panel" ref={modalRef}>
         {/* Modal Header */}
         <div className="smart-filter-header">
           <h2>Smart Filters</h2>
@@ -162,7 +179,7 @@ const SmartFilter = ({
             {connectorTypes.map(type => (
               <button
                 key={type}
-                className={`filter-button ${localFilters.chargerType.includes(type) ? 'selected' : ''}`}
+                className={`filter-button ${filters.chargerType.includes(type) ? 'selected' : ''}`}
                 onClick={() => handleChargerTypeToggle(type)}
               >
                 {type}
@@ -178,7 +195,7 @@ const SmartFilter = ({
             {chargingSpeeds.map(speed => (
               <button
                 key={speed}
-                className={`filter-button ${localFilters.chargingSpeed.includes(speed) ? 'selected' : ''}`}
+                className={`filter-button ${filters.chargingSpeed.includes(speed) ? 'selected' : ''}`}
                 onClick={() => handleChargingSpeedToggle(speed)}
               >
                 {speed}
@@ -196,7 +213,7 @@ const SmartFilter = ({
                 type="range"
                 min={priceMin}
                 max={priceMax}
-                value={localFilters.priceRange[0]}
+                value={filters.priceRange[0]}
                 onChange={handleMinChange}
                 className="price-slider"
               />
@@ -204,7 +221,7 @@ const SmartFilter = ({
                 type="range"
                 min={priceMin}
                 max={priceMax}
-                value={localFilters.priceRange[1]}
+                value={filters.priceRange[1]}
                 onChange={handleMaxChange}
                 className="price-slider"
               />
@@ -213,7 +230,7 @@ const SmartFilter = ({
               <div className="price-labels">
                 <span>{priceMin}</span>
                 <span className="price-range-display">
-                  {localFilters.priceRange[0]} - {localFilters.priceRange[1]}
+                  {filters.priceRange[0]} - {filters.priceRange[1]}
                 </span>
                 <span>{priceMax}</span>
               </div>
@@ -227,7 +244,7 @@ const SmartFilter = ({
             {operatorTypes.map(type => (
               <button
                 key={type}
-                className={`filter-button ${localFilters.operatorType.includes(type) ? 'selected' : ''}`}
+                className={`filter-button ${filters.operatorType.includes(type) ? 'selected' : ''}`}
                 onClick={() => handleOperatorToggle(type)}
               >
                 {type}
@@ -244,7 +261,7 @@ const SmartFilter = ({
             <label className="toggle-switch">
               <input
                 type="checkbox"
-                checked={localFilters.showOnlyAvailable}
+                checked={filters.showOnlyAvailable}
                 onChange={handleAvailabilityToggle}
               />
               <span className="toggle-slider"></span>
@@ -260,7 +277,7 @@ const SmartFilter = ({
             <label className="toggle-switch">
               <input
                 type="checkbox"
-                checked={localFilters.showReliability}
+                checked={filters.showReliability}
                 onChange={handleReliabilityToggle}
               />
               <span className="toggle-slider"></span>
