@@ -2,6 +2,7 @@ import React, { useState, useContext, useEffect } from 'react';
 import { Star, Heart, MessageCircle, X, ChevronDown, ChevronUp } from 'lucide-react';
 import '../styles/ChargerSideBar.css';
 import { FavouritesContext } from '../context/FavouritesContext';
+import SideBarBookingTool from '../components/SideBarBookingTool';
 import { UserContext } from '../context/user';
 import { submitChargerReview, getChargerReviews, getChargerReviewStats, checkUserReviewStatus, updateChargerReview } from '../services/chargerReviewService';
 
@@ -237,32 +238,58 @@ export default function ChargerSideBar({ station, onClose }) {
           <span>{isFav ? 'Saved' : 'Save'}</span>
         </button>
 
-          <button
-            onClick={() => {
-              if (!user?.token) {
-                alert('Please sign in to review this charger.');
-                return;
-              }
-              
-              // If user has reviewed, populate form with existing review data
-              if (userHasReviewed && existingUserReview) {
-                setUserReview({
-                  rating: existingUserReview.rating,
-                  comment: existingUserReview.comment
-                });
-              } else {
-                // Reset form for new review
-                setUserReview({ rating: 0, comment: '' });
-              }
-              
-              setShowReviewForm(!showReviewForm);
-            }}
-            className={`action-btn review-btn ${userHasReviewed ? 'reviewed' : ''}`}
-          >
-            <Star size={18} fill={userHasReviewed ? '#fbbf24' : 'none'} color={userHasReviewed ? '#fbbf24' : '#374151'} />
-            <span>{userHasReviewed ? 'Update Review' : 'Review'}</span>
-          </button>
+      <div className="sidebar-section">
+        <SideBarBookingTool />
+      </div>
+
+      {/* Rating Stars */}
+      <div className="sidebar-section">
+        <h4 style={{ marginBottom: '4px' }}>⭐ Rate this charger</h4>
+        <div className="rating-stars">
+          {[1, 2, 3, 4, 5].map((star) => (
+            <span
+              key={star}
+              style={{
+                cursor: 'pointer',
+                fontSize: '1.5rem',
+                color: (hoverRating || rating) >= star ? '#f39c12' : '#ccc'
+              }}
+              onClick={() => setRating(star)}
+              onMouseEnter={() => setHoverRating(star)}
+              onMouseLeave={() => setHoverRating(0)}
+            >
+              ★
+            </span>
+          ))}
         </div>
+       </div>
+       
+       {/* Full Review Button (from master) */}
+        <button
+          onClick={() => {
+            if (!user?.token) {
+              alert('Please sign in to review this charger.');
+              return;
+            }
+
+            // If user has reviewed, populate form with existing review data
+            if (userHasReviewed && existingUserReview) {
+              setUserReview({
+                rating: existingUserReview.rating,
+                comment: existingUserReview.comment
+              });
+            } else {
+              // Reset form for new review
+              setUserReview({ rating: 0, comment: '' });
+            }
+
+            setShowReviewForm(!showReviewForm);
+          }}
+          className={`action-btn review-btn ${userHasReviewed ? 'reviewed' : ''}`}
+        >
+          <Star size={18} fill={userHasReviewed ? '#fbbf24' : 'none'} color={userHasReviewed ? '#fbbf24' : '#374151'} />
+          <span>{userHasReviewed ? 'Update Review' : 'Review'}</span>
+        </button>
 
         {/* Station Details */}
         <div className="station-details">
