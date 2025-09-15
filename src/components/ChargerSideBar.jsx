@@ -14,7 +14,7 @@ export default function ChargerSideBar({ station, onClose }) {
   const [isFav, setIsFav] = useState(false);
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
-  
+
   // New states for reviews
   const [showReviews, setShowReviews] = useState(false);
   const [reviews, setReviews] = useState([]);
@@ -32,14 +32,14 @@ export default function ChargerSideBar({ station, onClose }) {
       (typeof s === 'object' ? s._id : s) === station._id
     );
     setIsFav(found);
-    
+
     // Load reviews and stats for this charger
     loadChargerData();
   }, [favourites, station, user]);
 
   const loadChargerData = async () => {
     if (!station?._id) return;
-    
+
     setIsLoading(true);
     try {
       // Load reviews and stats in parallel
@@ -47,17 +47,17 @@ export default function ChargerSideBar({ station, onClose }) {
         getChargerReviews(station._id),
         getChargerReviewStats(station._id)
       ]);
-      
+
       setReviews(reviewsResponse.data?.reviews || []);
       setReviewStats(statsResponse.data || { averageRating: 0, totalReviews: 0 });
-      
+
       // Check if user has already reviewed this charger
       if (user?.token) {
         try {
           const userStatusResponse = await checkUserReviewStatus(station._id, user.token);
           setUserHasReviewed(userStatusResponse.data?.hasReviewed || false);
           setExistingUserReview(userStatusResponse.data?.userReview || null);
-          
+
           // If user has reviewed, populate the form with their existing review
           if (userStatusResponse.data?.userReview) {
             setUserReview({
@@ -111,14 +111,14 @@ export default function ChargerSideBar({ station, onClose }) {
       }
       return;
     }
-    
+
     setIsSubmittingReview(true);
     try {
       const reviewData = {
         rating: userReview.rating,
         comment: userReview.comment
       };
-      
+
       if (userHasReviewed && existingUserReview) {
         // Update existing review
         await updateChargerReview(existingUserReview.id, reviewData, user.token);
@@ -132,14 +132,14 @@ export default function ChargerSideBar({ station, onClose }) {
         await submitChargerReview(newReviewData, user.token);
         alert('Review submitted successfully!');
       }
-      
+
       setUserReview({ rating: 0, comment: '' });
       setShowReviewForm(false);
       setUserHasReviewed(true);
-      
+
       // Reload all charger data
       await loadChargerData();
-      
+
     } catch (error) {
       console.error('Error submitting review:', error);
       if (error.message.includes('already reviewed')) {
@@ -157,12 +157,12 @@ export default function ChargerSideBar({ station, onClose }) {
     if (typeof dateString === 'string' && dateString.includes('ago')) {
       return dateString;
     }
-    
+
     const date = new Date(dateString);
     const now = new Date();
     const diffTime = Math.abs(now - date);
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
+
     if (diffDays === 1) return '1 day ago';
     if (diffDays < 7) return `${diffDays} days ago`;
     if (diffDays < 30) return `${Math.ceil(diffDays / 7)} weeks ago`;
@@ -219,7 +219,7 @@ export default function ChargerSideBar({ station, onClose }) {
                   await toggleFavourite(station);
                   setIsFav((prev) => !prev);
                   console.log('Favorite toggled successfully');
-                  
+
                   // Show success message
                   if (!isFav) {
                     alert('Station saved to favorites!');
@@ -231,7 +231,7 @@ export default function ChargerSideBar({ station, onClose }) {
                   alert('Failed to save favorite. Please try again.');
                 }
               }}
-            className={`action-btn ${isFav ? 'favourite-active' : 'favourite-btn'}`}
+              className={`action-btn ${isFav ? 'favourite-active' : 'favourite-btn'}`}
             >
               <Heart size={18} fill={isFav ? '#ef4444' : 'none'} color={isFav ? '#ef4444' : '#374151'} />
               <span>{isFav ? 'Saved' : 'Save'}</span>
@@ -284,8 +284,8 @@ export default function ChargerSideBar({ station, onClose }) {
         </div>
 
         {/* <div className="sidebar-section"> */}
-          {/* Rating Stars */}
-          {/* <h4 style={{ marginBottom: '6px' }}>⭐ Rate this charger</h4>
+        {/* Rating Stars */}
+        {/* <h4 style={{ marginBottom: '6px' }}>⭐ Rate this charger</h4>
           <div style={{ marginBottom: '12px' }}>
             {[1, 2, 3, 4, 5].map((star) => (
               <span
@@ -302,8 +302,8 @@ export default function ChargerSideBar({ station, onClose }) {
             ))}
           </div> */}
 
-          {/* Full Review Button */}
-          {/* <button
+        {/* Full Review Button */}
+        {/* <button
             onClick={() => {
               if (!user?.token) {
                 alert('Please sign in to review this charger.');
@@ -328,120 +328,121 @@ export default function ChargerSideBar({ station, onClose }) {
           </button>
         </div> */}
 
-          {/* Review Form */}
-          {showReviewForm && (
-            <div className="sidebar-section">
-              <div className="review-form">
-                <h4>{userHasReviewed ? 'Update your review' : 'Rate this charger'}</h4>
-                <div className="rating-input">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <Star
-                      key={star}
-                      size={24}
-                      className="rating-star"
-                      fill={star <= userReview.rating ? '#fbbf24' : '#d1d5db'}
-                      color={star <= userReview.rating ? '#fbbf24' : '#d1d5db'}
-                      onClick={() => setUserReview(prev => ({ ...prev, rating: star }))}
-                    />
-                  ))}
-                </div>
-                <textarea
-                  placeholder={userHasReviewed ? "Update your review..." : "Write your review..."}
-                  value={userReview.comment}
-                  onChange={(e) => setUserReview(prev => ({ ...prev, comment: e.target.value }))}
-                  className="review-textarea"
-                />
-                <button
-                  onClick={handleSubmitReview}
-                  disabled={isSubmittingReview || !userReview.rating}
-                  className="submit-review-btn"
-                >
-                  {isSubmittingReview 
-                    ? (userHasReviewed ? 'Updating...' : 'Submitting...') 
-                    : (userHasReviewed ? 'Update Review' : 'Submit Review')
-                  }
-                </button>
+        {/* Review Form */}
+        {showReviewForm && (
+          <div className="sidebar-section">
+            <div className="review-form">
+              <h4>{userHasReviewed ? 'Update your review' : 'Rate this charger'}</h4>
+              <div className="rating-input">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <Star
+                    key={star}
+                    size={24}
+                    className="rating-star"
+                    fill={star <= userReview.rating ? '#fbbf24' : '#d1d5db'}
+                    color={star <= userReview.rating ? '#fbbf24' : '#d1d5db'}
+                    onClick={() => setUserReview(prev => ({ ...prev, rating: star }))}
+                  />
+                ))}
               </div>
+              <textarea
+                placeholder={userHasReviewed ? "Update your review..." : "Write your review..."}
+                value={userReview.comment}
+                onChange={(e) => setUserReview(prev => ({ ...prev, comment: e.target.value }))}
+                className="review-textarea"
+              />
+              <button
+                onClick={handleSubmitReview}
+                disabled={isSubmittingReview || !userReview.rating}
+                className="submit-review-btn"
+              >
+                {isSubmittingReview
+                  ? (userHasReviewed ? 'Updating...' : 'Submitting...')
+                  : (userHasReviewed ? 'Update Review' : 'Submit Review')
+                }
+              </button>
             </div>
-          )}
+          </div>
+        )}
 
-          {/* Reviews Section */}
-          {/* <div className="reviews-header" onClick={() => setShowReviews(!showReviews)}>
+        {/* Reviews Section */}
+        {/* <div className="reviews-header" onClick={() => setShowReviews(!showReviews)}>
             <h4>Reviews</h4>
             <span className="review-count-badge">{reviews.length}</span>
             {showReviews ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
           </div> */}
-          {showReviews && (
-            <div className="sidebar-section">
-              <div className="section-header">See all reviews</div>
-              <div className="reviews-list">
-                {isLoading ? (
-                  <div className="loading-reviews">Loading reviews...</div>
-                ) : reviews.length === 0 ? (
-                  <div className="no-reviews">No reviews yet. Be the first to review this charger!</div>
-                ) : (
-                  reviews.map((review) => (
-                    <div key={review.id} className="review-item">
-                      <div className="review-header">
-                        <div className="reviewer-info">
-                          <div className="reviewer-avatar">
-                            {review.userAvatar || review.userName?.charAt(0) || 'U'}
-                          </div>
-                          <div className="reviewer-details">
-                            <span className="reviewer-name">{review.userName || 'Anonymous'}</span>
-                            <div className="review-rating">
-                              {[1, 2, 3, 4, 5].map((star) => (
-                                <Star
-                                  key={star}
-                                  size={12}
-                                  fill={star <= review.rating ? '#fbbf24' : '#d1d5db'}
-                                  color={star <= review.rating ? '#fbbf24' : '#d1d5db'}
-                                />
-                              ))}
-                            </div>
+        {showReviews && (
+          <div className="sidebar-section">
+            <div className="section-header">See all reviews</div>
+            <div className="reviews-list">
+              {isLoading ? (
+                <div className="loading-reviews">Loading reviews...</div>
+              ) : reviews.length === 0 ? (
+                <div className="no-reviews">No reviews yet. Be the first to review this charger!</div>
+              ) : (
+                reviews.map((review) => (
+                  <div key={review.id} className="review-item">
+                    <div className="review-header">
+                      <div className="reviewer-info">
+                        <div className="reviewer-avatar">
+                          {review.userAvatar || review.userName?.charAt(0) || 'U'}
+                        </div>
+                        <div className="reviewer-details">
+                          <span className="reviewer-name">{review.userName || 'Anonymous'}</span>
+                          <div className="review-rating">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                              <Star
+                                key={star}
+                                size={12}
+                                fill={star <= review.rating ? '#fbbf24' : '#d1d5db'}
+                                color={star <= review.rating ? '#fbbf24' : '#d1d5db'}
+                              />
+                            ))}
                           </div>
                         </div>
-                        <span className="review-date">{formatDate(review.timeAgo || review.createdAt)}</span>
                       </div>
-                      <p className="review-comment">{review.comment}</p>
+                      <span className="review-date">{formatDate(review.timeAgo || review.createdAt)}</span>
                     </div>
-                  ))
-                )}
-              </div>
+                    <p className="review-comment">{review.comment}</p>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Charge Estimator */}
+        <div className="sidebar-section">
+          <div className="section-header">Charge Estimator</div>
+          <div className="estimator-inputs">
+            <input
+              type="number"
+              placeholder="Energy (kWh)"
+              value={kWh}
+              onChange={e => setKWh(e.target.value)}
+              className="estimator-input"
+            />
+            <input
+              type="number"
+              placeholder="Price per kWh ($)"
+              value={pricePerKWh}
+              onChange={e => setPricePerKWh(e.target.value)}
+              className="estimator-input"
+            />
+          </div>
+          {estimatedCost && (
+            <div className="estimated-cost">
+              Estimated cost: <strong>${estimatedCost}</strong>
             </div>
           )}
+        </div>
 
-          {/* Charge Estimator */}
-          <div className="sidebar-section">
-            <div className="section-header">Charge Estimator</div>
-            <div className="estimator-inputs">
-              <input
-                type="number"
-                placeholder="Energy (kWh)"
-                value={kWh}
-                onChange={e => setKWh(e.target.value)}
-                className="estimator-input"
-              />
-              <input
-                type="number"
-                placeholder="Price per kWh ($)"
-                value={pricePerKWh}
-                onChange={e => setPricePerKWh(e.target.value)}
-                className="estimator-input"
-              />
-            </div>
-            {estimatedCost && (
-              <div className="estimated-cost">
-                Estimated cost: <strong>${estimatedCost}</strong>
-              </div>
-            )}
-          </div>
+        {/* Booking Tool */}
+        <div className="sidebar-section">
+          <div className="section-header">Book this Charger</div>
+          <SideBarBookingTool stationName={station?.operator || "Unknown"} />
 
-          {/* Booking Tool */}
-          <div className="sidebar-section">
-            <div className="section-header">Book this Charger</div>
-            <SideBarBookingTool />
-          </div>
+        </div>
       </div>
     </div>
   );

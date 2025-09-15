@@ -5,7 +5,8 @@ import "../styles/SideBarBookingTool.css";
 import { toast } from 'react-toastify';
 
 
-export default function SidebarBookingTool() {
+
+export default function SidebarBookingTool({ stationName = "Unknown Station" }) {
     const [user, setUser] = useState(null);
     const [selectedDate, setSelectedDate] = useState(null);
     const [selectedTime, setSelectedTime] = useState(null);
@@ -37,7 +38,7 @@ export default function SidebarBookingTool() {
     const handleConfirm = () => {
         const dateTime = combineDateTime();
         if (!dateTime || !agree) return;
-
+        const now = new Date();
         const yyyy = dateTime.getFullYear();
         const mm = String(dateTime.getMonth() + 1).padStart(2, "0");
         const dd = String(dateTime.getDate()).padStart(2, "0");
@@ -46,15 +47,19 @@ export default function SidebarBookingTool() {
 
         const confirmation = {
             id: "BK-" + Math.random().toString(36).slice(2, 8).toUpperCase(),
-            date: `${yyyy}-${mm}-${dd}`,
-            time: `${hh}:${min}`,
+            station: stationName,
+            date: `${dateTime.toLocaleDateString()}`,
+            time: `${dateTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`,
+            bookedAt: now.toLocaleString(),
             vehicle,
             notes,
             userEmail: user?.email,
             createdAt: new Date().toISOString(),
         };
 
-        localStorage.setItem("lastBooking", JSON.stringify(confirmation));
+        const prev = JSON.parse(localStorage.getItem("bookingHistory") || "[]");
+        localStorage.setItem("bookingHistory", JSON.stringify([confirmation, ...prev]));
+
         toast.success(
             <>
                 Booking confirmed!
@@ -119,6 +124,7 @@ export default function SidebarBookingTool() {
             >
                 Confirm Booking
             </button>
+
         </div>
     );
 }
