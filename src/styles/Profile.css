@@ -6,16 +6,22 @@
     align-items: center;
     justify-content: flex-start;
     top: 2rem;
+    width: 100%;
 }
-.dashboard-title {
-    font-size: 32px;
-    margin-bottom: 1rem;
+.dashboard-left h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #2A5F3B;
+    text-align: center;
+    flex-shrink: 0;
 }
 .dashboard-profile-image {
     width: 200px;
     height: auto;
     max-height: 243px;
     object-fit: cover;
+    display: block;
+    margin: 0 auto;
 }
   
 /* Center Section */
@@ -172,11 +178,12 @@
         align-items: center;
         margin-bottom: 1rem;
     }
+    .dashboard-center {
+        max-height: 60vh;
+        overflow-y: auto;
+    }
     .dashboard-title {
         font-size: 24px;
-    }
-    .dashboard-profile-image {
-        display: none;
     }
     .dashboard-btn {
         width: 50%;
