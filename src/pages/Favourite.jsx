@@ -23,13 +23,13 @@ function Favourite() {
       <Background>
         <div className="favourite-container">
           <h1>My Favourite Stations</h1>
-  
+
           {error && <p className="error-msg">Error loading favourites: {error}</p>}
           {loading && !error && <p>Loading favourite stations...</p>}
           {!loading && !error && favourites.length === 0 && (
             <p>No favourites yet. Go to the map and ❤️ a station to save it here.</p>
           )}
-  
+
           {!loading && !error && favourites.length > 0 && (
             <div className="favourite-table-wrapper">
               <table className="favourite-table">

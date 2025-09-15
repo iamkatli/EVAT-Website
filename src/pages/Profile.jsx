@@ -325,7 +325,7 @@ function Profile() {
       <NavBar />
       <Background>
         <div className="dashboard-left">
-          <h2 className="dashboard-title">My Dashboard</h2>
+          <h1>My Dashboard</h1>
           <div className="dashboard-profile-image">
             <img src={profileImage} alt="Profile" />
           </div>
