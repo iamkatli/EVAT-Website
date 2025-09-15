@@ -1,4 +1,4 @@
-import {BrowserRouter as Router, Routes, Route, Navigate} from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Signup from "./pages/Signup";
 import Signin from "./pages/Signin";
 import Profile from './pages/Profile';
@@ -10,8 +10,9 @@ import { FavouritesProvider } from "./context/FavouritesContext";
 import Cost from "./pages/cost";
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer } from 'react-toastify';
-
 import BookingTool from './pages/BookingTool';
+import ContactSupport from './pages/ContactSupport';
+
 
 function App() {
   return (
@@ -27,7 +28,7 @@ function App() {
             <Route path="/feedback" element={<Feedback />} />
             <Route path="/favourites" element={<Favourite />} />
             <Route path="/cost" element={<Cost />} />
-            <Route path="/bookingtool" element={<BookingTool />} />
+            <Route path="/support" element={<ContactSupport />} />
             {/* Catch-all Route */}
             <Route path="*" element={<div>404 Page Not Found</div>} />
           </Routes>
@@ -37,5 +38,6 @@ function App() {
     </UserProvider>
   );
 }
+
 
 export default App;
