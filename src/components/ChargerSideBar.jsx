@@ -25,6 +25,10 @@ export default function ChargerSideBar({ station, onClose }) {
   const [userHasReviewed, setUserHasReviewed] = useState(false);
   const [existingUserReview, setExistingUserReview] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [kms, setKms] = useState('');
+  const [carEfficiency, setCarEfficiency] = useState('');
+  const [evPricePerKWh, setEvPricePerKWh] = useState('');
+  const [evpricePerKWh, setevPricePerKWh] = useState('');
 
   useEffect(() => {
     if (!station) return;
@@ -411,31 +415,47 @@ export default function ChargerSideBar({ station, onClose }) {
             </div>
           )}
 
-          {/* Charge Estimator */}
+          
+          {/* EV Cost Estimator */}
           <div className="sidebar-section">
-            <div className="section-header">Charge Estimator</div>
+            <div className="section-header">EV Cost Calculator</div>
             <div className="estimator-inputs">
               <input
                 type="number"
-                placeholder="Energy (kWh)"
-                value={kWh}
-                onChange={e => setKWh(e.target.value)}
                 className="estimator-input"
+                placeholder="Avg. kms you want to drive"
+                value={kms}
+                onChange={e => setKms(e.target.value)}
+                min="1"
               />
               <input
                 type="number"
-                placeholder="Price per kWh ($)"
-                value={pricePerKWh}
-                onChange={e => setPricePerKWh(e.target.value)}
                 className="estimator-input"
+                placeholder="Car Efficiency (km/kWh)"
+                value={carEfficiency}
+                onChange={e => setCarEfficiency(e.target.value)}
+                min="0.1"
+                step="0.1"
+              />
+              <input
+                type="number"
+                className="estimator-input"
+                placeholder="Electricity Cost ($ per kWh)"
+                value={evPricePerKWh}
+                onChange={e => setEvPricePerKWh(e.target.value)}
+                min="0.01"
+                step="0.01"
               />
             </div>
-            {estimatedCost && (
+            {kms && carEfficiency && evPricePerKWh && (
               <div className="estimated-cost">
-                Estimated cost: <strong>${estimatedCost}</strong>
+                Estimated Electric Cost for the usage: <strong>
+                  ${((parseFloat(kms) / parseFloat(carEfficiency)) * parseFloat(evPricePerKWh)).toFixed(2)}
+                </strong>
               </div>
             )}
           </div>
+  
 
           {/* Booking Tool */}
           <div className="sidebar-section">
