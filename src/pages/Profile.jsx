@@ -10,6 +10,8 @@ import Background from "../components/Background";
 import profileImage from '../assets/profileImage.png';
 import '../styles/Profile.css';
 import ChatBubble from "../components/ChatBubble";
+import BookingHistoryTable from "../components/BookingHistoryTable";
+
 
 function Profile() {
   const navigate = useNavigate();
@@ -48,7 +50,7 @@ function Profile() {
       navigate('/signin');
       return;
     }
-  
+
     const fetchUserProfile = async () => {
       try {
         // Fetch basic user profile (id, name, email, mobile, role)
@@ -57,17 +59,17 @@ function Profile() {
         });
         if (!authRes.ok) throw new Error("Failed to fetch auth profile");
         const authData = await authRes.json();
-  
+
         // Fetch detailed profile (car model, favourite stations)
         const profileRes = await fetch("http://localhost:8080/api/profile/user-profile", {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!profileRes.ok) throw new Error("Failed to fetch user profile details");
         const profileData = await profileRes.json();
-  
+
         // Normalize car for the UI
         let car = profileData?.data?.user_car_model ?? null;
-  
+
         if (car && typeof car === "string") {
           // car is an ID - fetch full vehicle
           const vRes = await fetch(`http://localhost:8080/api/vehicle/${car}`, {
@@ -91,7 +93,7 @@ function Profile() {
             year: car.year || car.model_release_year,
           };
         }
-  
+
         const nextUser = {
           id: authData.data.id,
           firstName: authData.data.firstName || "",
@@ -103,7 +105,7 @@ function Profile() {
           favourites: profileData.data.favourite_stations || [],
           token: token,
         };
-  
+
         setUser(nextUser);
         localStorage.setItem("currentUser", JSON.stringify(nextUser));
       } catch (err) {
@@ -111,10 +113,10 @@ function Profile() {
         navigate('/signin');
       }
     };
-  
+
     fetchUserProfile();
   }, [navigate, token]);
-  
+
   useEffect(() => {
     if (editingCar) {
       fetch("http://localhost:8080/api/vehicle", {
@@ -123,13 +125,13 @@ function Profile() {
         .then(res => res.json())
         .then(data => {
           const items = (data.data || []).map(v => ({
-              ...v,
-              id: v.id || v._id,
-              year: v.year || v.model_release_year,
-            }));
-            setAllVehicles(items);
-            setMakes(["Select", ...new Set(items.map(v => v.make))]);
-          })
+            ...v,
+            id: v.id || v._id,
+            year: v.year || v.model_release_year,
+          }));
+          setAllVehicles(items);
+          setMakes(["Select", ...new Set(items.map(v => v.make))]);
+        })
         .catch(err => console.error("Failed to load vehicles:", err));
     }
   }, [editingCar, user?.token]);
@@ -141,7 +143,7 @@ function Profile() {
         .filter(v => v.make === user.car.make)
         .map(v => v.model);
       setModels(["Select", ...new Set(filteredModels)]);
-  
+
       if (user?.car?.model) {
         const filteredYears = allVehicles
           .filter(v => v.make === user.car.make && v.model === user.car.model)
@@ -162,17 +164,6 @@ function Profile() {
     if (activeTab !== "payment") setEditingPayment(false);
     if (activeTab !== "car") setEditingCar(false);
     if (activeTab !== "about") setEditingAbout(false);
-  }, [activeTab]);
-
-  // Load booking history (mock data)
-  useEffect(() => {
-    if (activeTab === "history") {
-      const mockBookings = [
-        { transactionId: "BK1001", stationId: "ST001", location: "Chadstone", date: "2025-08-24", startTime: "09:00", duration: 2, amount: 20.0, status: "Completed" },
-        { transactionId: "BK1002", stationId: "ST095", location: "Maidstone", date: "2025-08-23", startTime: "16:00", duration: 1.5, amount: 15.0, status: "Completed" },
-      ];
-      setHistory(mockBookings);
-    }
   }, [activeTab]);
 
   const handleSignOut = () => {
@@ -201,7 +192,7 @@ function Profile() {
         lastName: user.lastName,
         mobile: user.mobile,
       };
-  
+
       const response = await fetch("http://localhost:8080/api/auth/profile", {
         method: "PUT",
         headers: {
@@ -210,9 +201,9 @@ function Profile() {
         },
         body: JSON.stringify(payload),
       });
-  
+
       if (!response.ok) throw new Error("Failed to update profile info");
-  
+
       setEditingAbout(false);
       alert("Profile information updated successfully!");
     } catch (err) {
@@ -224,7 +215,7 @@ function Profile() {
   const handleSaveCar = async () => {
     try {
       const token = user?.token;
-  
+
       // The car selected must exist in allVehicles (from /api/vehicle)
       const selectedVehicle = allVehicles.find(
         v =>
@@ -232,16 +223,16 @@ function Profile() {
           v.model === user.car?.model &&
           String(v.model_release_year || v.year) === String(user.car?.year)
       );
-  
+
       if (!selectedVehicle) {
         alert("Invalid vehicle selection");
         return;
       }
-  
+
       const payload = {
         vehicleId: selectedVehicle.id, // API requires only this
       };
-  
+
       const response = await fetch("http://localhost:8080/api/profile/vehicle-model", {
         method: "POST",
         headers: {
@@ -250,24 +241,24 @@ function Profile() {
         },
         body: JSON.stringify(payload),
       });
-  
+
       if (!response.ok) throw new Error("Failed to update vehicle");
-  
+
       const data = await response.json();
-  
+
       // Update user state with the selected vehicle
       const normalizedCar = {
         ...selectedVehicle,
         id: selectedVehicle.id ?? selectedVehicle._id ?? vehicleId,
         year: selectedVehicle.year ?? selectedVehicle.model_release_year ?? null,
       };
-      
+
       setUser(prev => {
         const next = { ...prev, car: normalizedCar };
         localStorage.setItem("currentUser", JSON.stringify(next));
         return next;
       });
-      
+
       setEditingCar(false);
       alert("Vehicle updated successfully!");
     } catch (err) {
@@ -283,37 +274,37 @@ function Profile() {
       alert("Card number must be 16 digits.");
       return;
     }
-  
+
     if (!/^\d{3}$/.test(user.cvv || "")) {
       alert("CVV must be 3 digits.");
       return;
     }
-  
+
     // Validate expiry date to have MM/YY format
     const expRegex = /^(0[1-9]|1[0-2])\/?([0-9]{2})$/;
     if (!user.expiryDate || !expRegex.test(user.expiryDate)) {
       alert("Expiry date must be in MM/YY format.");
       return;
     }
-  
+
     // Check if expiry date is in the future
     const [inputMonth, inputYear] = user.expiryDate.split("/").map(s => parseInt(s, 10));
     const now = new Date();
     const currentYear = now.getFullYear() % 100; // last 2 digits
     const currentMonth = now.getMonth() + 1; // 0-indexed
-  
+
     if (inputYear < currentYear || (inputYear === currentYear && inputMonth < currentMonth)) {
       alert("Card has expired. Please enter a valid card detail.");
       return;
     }
-  
+
     // Save locally
     setUser(prev => {
       const next = { ...prev, cardNumber: cardNum };
       localStorage.setItem("currentUser", JSON.stringify(next));
       return next;
     });
-  
+
     setEditingPayment(false);
     alert("Payment information updated locally.");
   };
@@ -337,7 +328,7 @@ function Profile() {
               <button className="dashboard-btn" onClick={() => setActiveTab("about")}>About Me</button>
               <button className="dashboard-btn" onClick={() => setActiveTab("car")}>My Car</button>
               <button className="dashboard-btn" onClick={() => setActiveTab("payment")}>Payment</button>
-              <button className="dashboard-btn" onClick={() => setActiveTab("history")}>History</button>
+              <button className="dashboard-btn" onClick={() => setActiveTab("history")}>Booking History</button>
             </>
           )}
 
@@ -465,7 +456,7 @@ function Profile() {
                       value={user.cardNumber || ""}
                       onChange={(e) => {
                         // Only digits, max 16
-                        let val = e.target.value.replace(/\D/g, '').slice(0,16);
+                        let val = e.target.value.replace(/\D/g, '').slice(0, 16);
                         // Add spaces every 4 digits for display
                         val = val.replace(/(\d{4})(?=\d)/g, '$1 ');
                         setUser({ ...user, cardNumber: val });
@@ -473,8 +464,8 @@ function Profile() {
                       placeholder="1234 5678 9012 3456"
                     />
                   ) : (
-                    user.cardNumber 
-                      ? "**** **** **** " + user.cardNumber.replace(/\s/g, '').slice(-4) 
+                    user.cardNumber
+                      ? "**** **** **** " + user.cardNumber.replace(/\s/g, '').slice(-4)
                       : "**** **** **** 1234"
                   )}
                 </p>
@@ -487,7 +478,7 @@ function Profile() {
                       value={user.expiryDate || ""}
                       onChange={(e) => {
                         let val = e.target.value.replace(/\D/g, '').slice(0, 4); // digits only, max 4
-                        if (val.length > 2) val = val.slice(0,2) + '/' + val.slice(2); // insert '/'
+                        if (val.length > 2) val = val.slice(0, 2) + '/' + val.slice(2); // insert '/'
                         setUser({ ...user, expiryDate: val });
                       }}
                       placeholder="MM/YY"
@@ -504,7 +495,7 @@ function Profile() {
                       type="text"
                       value={user.cvv || ""}
                       onChange={(e) => {
-                        const val = e.target.value.replace(/\D/g, '').slice(0,3);
+                        const val = e.target.value.replace(/\D/g, '').slice(0, 3);
                         setUser({ ...user, cvv: val });
                       }}
                       placeholder="123"
@@ -534,35 +525,8 @@ function Profile() {
           {activeTab === "history" && (
             <div className="history-container">
               <h3 className="section-title">Booking History</h3>
-                <div className="section-body">
-                {history.length === 0 ? (
-                  <p>No past transactions available.</p>
-                ) : (
-                  <div className="history-scroll">
-                    <table className="history-table">
-                      <thead>
-                        <tr>
-                          <th>ID</th>
-                          <th>Date</th>
-                          <th>Amount ($)</th>
-                          <th>Description</th>
-                          <th>Status</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {history.map(tx => (
-                          <tr key={tx.transactionId}>
-                            <td>{tx.transactionId}</td>
-                            <td>{tx.date} {tx.startTime}</td>
-                            <td>{tx.amount.toFixed(2)}</td>
-                            <td>{`Booking at ${tx.location} (Station ${tx.stationId}) for ${tx.duration}h`}</td>
-                            <td>{tx.status}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
+              <div className="section-body">
+                <BookingHistoryTable />
               </div>
             </div>
           )}
