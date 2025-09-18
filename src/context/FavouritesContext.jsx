@@ -1,4 +1,5 @@
 import React, { createContext, useState, useEffect } from "react";
+const API_URL = import.meta.env.VITE_API_URL;
 
 export const FavouritesContext = createContext();
 
@@ -19,7 +20,7 @@ export function FavouritesProvider({ children }) {
       setError(null);
 
       try {
-        const res = await fetch("http://localhost:8080/api/profile/user-profile", {
+        const res = await fetch(`${API_URL}/profile/user-profile`, {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
@@ -50,8 +51,8 @@ export function FavouritesProvider({ children }) {
 
     const isFav = favourites.some((s) => s._id === station._id);
     const url = isFav
-      ? "http://localhost:8080/api/profile/remove-favourite-station"
-      : "http://localhost:8080/api/profile/add-favourite-station";
+      ? `${API_URL}/profile/remove-favourite-station`
+      : `${API_URL}/profile/add-favourite-station`;
 
     try {
       const res = await fetch(url, {

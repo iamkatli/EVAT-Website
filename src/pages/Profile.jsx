@@ -10,6 +10,7 @@ import Background from "../components/Background";
 import profileImage from '../assets/profileImage.png';
 import '../styles/Profile.css';
 import ChatBubble from "../components/ChatBubble";
+const API_URL = import.meta.env.VITE_API_URL;
 
 function Profile() {
   const navigate = useNavigate();
@@ -52,14 +53,14 @@ function Profile() {
     const fetchUserProfile = async () => {
       try {
         // Fetch basic user profile (id, name, email, mobile, role)
-        const authRes = await fetch("http://localhost:8080/api/auth/profile", {
+        const authRes = await fetch(`${API_URL}/auth/profile`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!authRes.ok) throw new Error("Failed to fetch auth profile");
         const authData = await authRes.json();
   
         // Fetch detailed profile (car model, favourite stations)
-        const profileRes = await fetch("http://localhost:8080/api/profile/user-profile", {
+        const profileRes = await fetch(`${API_URL}/profile/user-profile`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!profileRes.ok) throw new Error("Failed to fetch user profile details");
@@ -70,7 +71,7 @@ function Profile() {
   
         if (car && typeof car === "string") {
           // car is an ID - fetch full vehicle
-          const vRes = await fetch(`http://localhost:8080/api/vehicle/${car}`, {
+          const vRes = await fetch(`${API_URL}/vehicle/${car}`, {
             headers: { Authorization: `Bearer ${token}` },
           });
           if (vRes.ok) {
@@ -117,7 +118,7 @@ function Profile() {
   
   useEffect(() => {
     if (editingCar) {
-      fetch("http://localhost:8080/api/vehicle", {
+      fetch(`${API_URL}/vehicle`, {
         headers: { Authorization: `Bearer ${user?.token}` },
       })
         .then(res => res.json())
@@ -202,7 +203,7 @@ function Profile() {
         mobile: user.mobile,
       };
   
-      const response = await fetch("http://localhost:8080/api/auth/profile", {
+      const response = await fetch(`${API_URL}/auth/profile`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -242,7 +243,7 @@ function Profile() {
         vehicleId: selectedVehicle.id, // API requires only this
       };
   
-      const response = await fetch("http://localhost:8080/api/profile/vehicle-model", {
+      const response = await fetch(`${API_URL}/profile/vehicle-model`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

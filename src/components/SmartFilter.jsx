@@ -128,7 +128,7 @@ const SmartFilter = ({
   };
 
   /**
-   * Closes the window (keeping button just for UX)
+   * Closes the window (keeping apply button just for UX)
    */
   const handleApplyFilter = () => {
     onClose();

@@ -78,7 +78,7 @@ function normaliseOperatorName(name) {
     return "BP Pulse";
   }
 
-  // Pulse group
+  // Ampcharge group
   if (lower.includes("ampcharge")) {
     return "Ampol Ampcharge";
   }
@@ -116,6 +116,7 @@ function BoundsWatcher({ onChange }) {
 export default function Map() {
   const { user } = useContext(UserContext);
 
+  // define the minimum price of a charger and maximum here
   const priceMin = 0;
   const priceMax = 100;
 
@@ -222,7 +223,7 @@ export default function Map() {
 
       //Speed filter
       if (filters.chargingSpeed.length > 0) {
-        const speed = Number(power_output); // parse as integer
+        const speed = Number(power_output); // parse as number
         const ok = filters.chargingSpeed.some(range => {
           switch (range) {
             case '<7kW':
@@ -244,12 +245,12 @@ export default function Map() {
         if (!ok) return false;
       }
 
-      //Price filter      
+      // Price filter      
       const price = parseCost(cost);
-      // if (price === null) return false; // this remove all unknown costs
+      // if (price === null) return false; // this will remove all 'unknown' costs
       if (price < filters.priceRange[0] || price > filters.priceRange[1]) return false;
 
-      //Operator filter
+      // Operator filter
       if (filters.operatorType.length > 0) {
         const normalisedOperator = normaliseOperatorName(operator);
         // Determine if operator is considered "Other"
@@ -261,7 +262,7 @@ export default function Map() {
         }
       }
 
-      //Available filter
+      // Available filter
       if (filters.showOnlyAvailable && station.is_operational !== 'true') {
         return false;
       }
