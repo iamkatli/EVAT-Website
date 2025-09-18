@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, KeyRound, User, Phone } from 'lucide-react';
 import '../styles/Style.css';
 
-const url = "http://localhost:8080/api/auth/register";
+const API_URL = import.meta.env.VITE_API_URL;
+const url = `${API_URL}/auth/register`;
 
 function Signup() {
   const [form, setForm] = useState({
