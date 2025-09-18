@@ -1,3 +1,8 @@
+// NOTE: Placeholder for future chatbot integration.
+
+// Current: clicking the bubble opens a standalone chat page (url) in a new tab.
+// Future: swap to an in-app mini chat window/modal instead of a separate page.
+
 import React from "react";
 import { MessageCircle } from "lucide-react";
 import "../styles/ChatBubble.css";

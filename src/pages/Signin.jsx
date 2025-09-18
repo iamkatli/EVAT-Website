@@ -103,7 +103,7 @@ function Signin() {
             }
         })
         .catch(err => console.error("JWT login error:", err));
-}, []);
+  }, []);
   
   //UI Rendering
   return (
@@ -159,8 +159,8 @@ function Signin() {
         </button>
       </form>
 
-      {error && <p className="error-message">❌ {error}</p>}
-      {submitted && <p className="success-message">✅ Sign in submitted</p>}
+      {error && <p className="error-message">{error}</p>}
+      {submitted && <p className="success-message">Sign in submitted</p>}
     </div>
   );
 }

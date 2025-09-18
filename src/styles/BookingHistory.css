@@ -1,24 +1,7 @@
-.booking-history-container {
-    padding: 1rem;
-    width: 100%;
-}
-
-.booking-history-container h1 {
-    font-size: 2rem;
-    font-weight: 700;
-    color: #2A5F3B;
-    text-align: center;
-    flex-shrink: 0;
-}
-
-
 .booking-table-wrapper {
     max-width: 80vw;
     max-height: 70vh;
-    overflow-y: auto;
-    margin-top: 1rem;
-    border: 1px solid #ddd;
-    border-radius: 8px;
+    overflow: auto;
 }
 
 .booking-table {
@@ -39,19 +22,21 @@
 }
 
 .booking-table tr:nth-child(even) {
-    background-color: #f9f9f9;
+    background-color: #ffffff50;
 }
 
-.station-info-row {
-    height: 70px;
-    vertical-align: middle;
-    color: #333;
+/* Tablet (≤1024px) */
+@media (max-width: 1024px) {
+    .booking-table-wrapper {
+        max-width: 80vw;
+        max-height: 40vh;
+        overflow: auto;
+    }
 }
-  
-.station-info-row.open {
-    background-color: rgba(105, 160, 69, 0.3);
-}
-  
-.station-info-row.restricted {
-    background-color: rgba(110, 110, 110, 0.3);
+
+/* Mobile (≤768px) */
+@media (max-width: 768px) {
+    .booking-table-wrapper {
+        max-width: 90vw;
+    }
 }
