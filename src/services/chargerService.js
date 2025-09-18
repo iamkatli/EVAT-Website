@@ -1,5 +1,7 @@
+const API_URL = import.meta.env.VITE_API_URL;
+
 export async function getChargers(user, params = {}) {
-  const baseUrl = "http://localhost:8080/api/chargers";
+  const baseUrl = `${API_URL}/chargers`;
   const url = new URL(baseUrl);
 
   if (params.bbox) {
@@ -78,7 +80,7 @@ export async function getOperatorTypes(user, params = {}) {
         return "BP Pulse";
       }
 
-      // Pulse group
+      // Ampcharge group
       if (lower.includes("ampcharge")) {
         return "Ampol Ampcharge";
       }
@@ -105,7 +107,7 @@ export async function getOperatorTypes(user, params = {}) {
     }, {});
 
     // Separate big groups vs "Other"
-    const threshold = 30; // adjust this
+    const threshold = 30; // big groups have more chargers than this number
     const bigGroups = Object.entries(counts)
       .filter(([_, count]) => count >= threshold)
       .map(([op]) => op);

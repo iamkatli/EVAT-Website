@@ -1,4 +1,5 @@
-const baseUrl = "http://localhost:8080/api/charger-reviews";
+const API_URL = import.meta.env.VITE_API_URL;
+const baseUrl = `${API_URL}/charger-reviews`;
 
 /**
  * Submit a review for a specific charger

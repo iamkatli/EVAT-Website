@@ -4,8 +4,9 @@ import { Eye, EyeOff, KeyRound, User as UserIcon } from 'lucide-react';
 import { UserContext } from '../context/user';
 import '../styles/Style.css';
 
-const url = "http://localhost:8080/api/auth/login";
-const jwtUrl = "http://localhost:8080/api/auth/jwt-login";
+const API_URL = import.meta.env.VITE_API_URL;
+const url = `${API_URL}/auth/login`;
+const jwtUrl = `${API_URL}/auth/jwt-login`;
 
 function Signin() {
   const [email, setEmail] = useState('');
