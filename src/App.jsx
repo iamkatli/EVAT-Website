@@ -7,7 +7,8 @@ import Feedback from './pages/Feedback';
 import Favourite from './pages/Favourite';
 import { UserProvider } from './context/user';
 import { FavouritesProvider } from "./context/FavouritesContext";
-import Cost from "./pages/cost";
+import Cost from "./pages/Cost";
+import Game from "./pages/Game";
 
 
 import BookingTool from './pages/BookingTool';
@@ -27,6 +28,7 @@ function App() {
             <Route path="/favourites" element={<Favourite />} />
             <Route path="/cost" element={<Cost />} />
             <Route path="/bookingtool" element={<BookingTool />} />
+            <Route path="/game" element={<Game />} />
             {/* Catch-all Route */}
             <Route path="*" element={<div>404 Page Not Found</div>} />
           </Routes>
