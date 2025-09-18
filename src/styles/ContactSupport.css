@@ -1,13 +1,21 @@
 /* Main container */
 .contact-support-container {
     width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+}
+
+.contact-support-content {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
     padding: 2rem;
     display: flex;
     flex-direction: column;
     gap: 2rem;
     box-sizing: border-box;
-    max-height: 100%;
-    overflow-y: auto;
 }
 
 /* Page title */
