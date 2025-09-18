@@ -10,7 +10,6 @@ import { FavouritesProvider } from "./context/FavouritesContext";
 import Cost from "./pages/cost";
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer } from 'react-toastify';
-import BookingTool from './pages/BookingTool';
 import ContactSupport from './pages/ContactSupport';
 
 

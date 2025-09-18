@@ -5,6 +5,7 @@ import profileIcon from '../assets/profileIcon.png';
 import '../styles/NavBar.css';
 
 
+
 function NavBar() {
     const navigate = useNavigate();
     const location = useLocation();
@@ -28,6 +29,7 @@ function NavBar() {
                 <img src={profileIcon} alt="Profile" className="profile-icon" />
             </div>
         </nav>
+        
     );
 }
 
