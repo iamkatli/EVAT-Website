@@ -49,7 +49,7 @@ function Signup() {
 
       if (response.ok) {
 
-        alert(`✅ Sign Up successful: ${data.message}, welcome ${form.firstName}`);
+        alert(`Sign Up successful: ${data.message}, welcome ${form.firstName}`);
         navigate('/signin');
       } else {
         setErrorMessage(data.message || "Sign up failed");
@@ -157,8 +157,8 @@ function Signup() {
           BACK TO SIGN IN
         </button>
 
-        {errorMessage && <p className="error-message">❌ {errorMessage}</p>}
-        {submitted && <p className="success-message">✅ Signup successful!</p>}
+        {errorMessage && <p className="error-message">{errorMessage}</p>}
+        {submitted && <p className="success-message">Signup successful!</p>}
       </form>
     </div>
   );

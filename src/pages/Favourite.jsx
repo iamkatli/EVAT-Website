@@ -1,8 +1,5 @@
-// Further potential developments:
+// NOTE: Further potential developments:
 
-// Unsaving a station requires refreshing the map
-// for the heart icon to turn grey, and vice versa.
-// (Refreshing the favourite page updates the list)
 // Limit the number of chargers displayed per page
 // and add new pages to manage many favourite stations.
 // Freeze column header while scrolling for easier viewing.
