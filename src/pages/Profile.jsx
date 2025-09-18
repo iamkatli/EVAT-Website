@@ -1,4 +1,5 @@
 // NOTE: For security reasons, card payment details are NOT stored in the backend.
+
 // This section only saves card information locally in the browser.
 // Full backend integration can be implemented
 // in the future when actual payments need to be made.
