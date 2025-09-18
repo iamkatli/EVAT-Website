@@ -337,7 +337,6 @@ export default function Map() {
         <SmartFilter
           isOpen={isFilterOpen}
           onClose={() => setIsFilterOpen(false)}
-          onApplyFilters={(newFilters) => setFilters(newFilters)}
           filters={filters}
           setFilters={setFilters}
           filteredCount={filteredStations.length}
