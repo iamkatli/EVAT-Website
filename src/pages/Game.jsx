@@ -140,7 +140,7 @@ function Game() {
       <NavBar />
       <Background>
         <div className="dashboard-left">
-          <h2 className="dashboard-title">Character</h2>
+          <h1 className="dashboard-title">Character</h1>
           <div className="dashboard-profile-image">
             <img src={profileImage} alt="Profile" />
           </div>
@@ -148,14 +148,14 @@ function Game() {
 
         <div className="dashboard-center">
           <div className="login-box">
-            <button className="dashboard-btn" onClick={handleAppLogin}>
+            <button className="game-dashboard-btn" onClick={handleAppLogin}>
               App Login Check-In
             </button>
           </div>
 
           <div className="action-section">
             <p className="action-title"><strong>Try Action-Based Rewards:</strong></p>
-            <div className="action-buttons">
+            <div className="game-action-buttons">
               <button onClick={() => triggerGamificationAction("check_in")}>Check-In</button>
               <button onClick={() => triggerGamificationAction("report_fault")}>Fault Report</button>
               <button onClick={() => triggerGamificationAction("validate_ai_prediction")}>AI Validation</button>
