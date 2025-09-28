@@ -7,10 +7,12 @@ import Feedback from './pages/Feedback';
 import Favourite from './pages/Favourite';
 import { UserProvider } from './context/user';
 import { FavouritesProvider } from "./context/FavouritesContext";
-import Cost from "./pages/cost";
+import Cost from "./pages/Cost";
+import Game from "./pages/Game";
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer } from 'react-toastify';
 import ContactSupport from './pages/ContactSupport';
+
 
 
 function App() {
@@ -27,6 +29,7 @@ function App() {
             <Route path="/feedback" element={<Feedback />} />
             <Route path="/favourites" element={<Favourite />} />
             <Route path="/cost" element={<Cost />} />
+            <Route path="/game" element={<Game />} /> 
             <Route path="/support" element={<ContactSupport />} />
             {/* Catch-all Route */}
             <Route path="*" element={<div>404 Page Not Found</div>} />

@@ -22,6 +22,7 @@ function NavBar() {
                     <button className={`nav-button ${isActive('/profile') ? 'active' : ''}`} onClick={() => navigate('/profile', { state: { resetDashboard: true } })}>My Dashboard</button>
                     <button className={`nav-button ${isActive('/map') ? 'active' : ''}`} onClick={() => navigate('/map')}>Map</button>
                     <button className={`nav-button ${isActive('/favourites') ? 'active' : ''}`} onClick={() => navigate('/favourites')}>Favourites</button>
+                    <button className={`nav-button ${isActive('/game') ? 'active' : ''}`} onClick={() => navigate('/game')}>Game</button>
                     <button className={`nav-button ${isActive('/support') ? 'active' : ''}`} onClick={() => navigate('/support')}>Contact Support</button>
                 </div>
                 <img src={profileIcon} alt="Profile" className="profile-icon" />
